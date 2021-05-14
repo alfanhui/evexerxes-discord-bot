@@ -1,0 +1,26 @@
+{
+    "name": "evexerxes-discord-bot",
+    "version": "1.0.0",
+    "description": "Eve corp discord bot notifier",
+    "main": "sso.js",
+    "scripts": {
+        "start": "nodemon --inspect sso.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alfanhui/evexerxes-discord-bot.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/alfanhui/evexerxes-discord-bot/issues"
+    },
+    "homepage": "https://github.com/alfanhui/evexerxes-discord-bot#readme",
+    "dependencies": {
+        "eve-sso": "^1.3.0",
+        "koa": "^2.13.1",
+        "koa-router": "^10.0.0",
+        "nodemon": "^2.0.7"
+    }
+}
