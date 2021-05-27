@@ -4,7 +4,8 @@
     "description": "Eve corp discord bot notifier",
     "main": "sso.js",
     "scripts": {
-        "start": "nodemon --inspect sso.js",
+        "start-dev": "nodemon --inspect sso.js",
+	"start": "nodemon sso.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {

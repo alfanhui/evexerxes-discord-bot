@@ -2,11 +2,12 @@ const SingleSignOn = require('eve-sso').default;
 const Koa = require('koa');
 const Router = require('koa-router');
 
+const PORT = 8002;
 // Get the client ID and secret from the Eve developers section
 const CLIENT_ID = require('./secret.js').client_id;
 const SECRET = require('./secret.js').secret;
 // The callback URI as defined in the application in the developers section
-const CALLBACK_URI = 'https://www.garbagecollectorb.com:8001/callback'
+const CALLBACK_URI = `https://www.garbagecollectorb.com/callback`
 
 const sso = new SingleSignOn(CLIENT_ID, SECRET, CALLBACK_URI, {
     endpoint: 'https://login.eveonline.com', // optional, defaults to this
@@ -46,6 +47,6 @@ router.get('/callback', async = (ctx) => {
 })
 
 app.use(router.middleware())
-app.listen(8001, function() {
-    console.log('Server listening on port 8001')
+app.listen(PORT, function() {
+    console.log(`Server listening on port ${PORT}`)
 })
