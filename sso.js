@@ -22,6 +22,7 @@ router.get('/login', async = (ctx) => {
     console.log("login hit")
         // The first argument is a required state, which you can verify in the callback
         // The second argument is an optional space-delimited string or string array of scopes to request
+    console.log(ctx)
     ctx.body = `<a href=${sso.getRedirectUrl('my-state')}>Login to Eve Online</a>`
 })
 
@@ -31,12 +32,12 @@ router.get('/callback', async = (ctx) => {
         // Get the one-time access code
     var code = ctx.query.code
         // NOTE: usually you'd want to validate the state (ctx.query.state) as well
-
-    // Swap the one-time code for an access token
+    console.log(ctx)
+        // Swap the one-time code for an access token
     var info = sso.getAccessToken(code); //await
-
-    // Usually you'd want to store the access token
-    // as well as the refresh token
+    console.log(info)
+        // Usually you'd want to store the access token
+        // as well as the refresh token
     info.then((response) => {
         console.log('info', response)
             // Do whatever, for example, redirect to user page
