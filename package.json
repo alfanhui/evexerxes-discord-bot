@@ -4,7 +4,7 @@
     "description": "Eve corp discord bot notifier",
     "main": "./dist/index.js",
     "scripts": {
-        "start-dev": "nodemon --inspect ./dist/index.js",
+        "pi-start": "tsc --p tsconfig.json && nodemon ./dist/index.js",
         "start": "npx tsc --p tsconfig.json && nodemon ./dist/index.js ",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
