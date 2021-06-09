@@ -10,7 +10,7 @@ export const getCorpContacts = (request: ESI['request'], token: Token, corporati
       );
 }
 
-interface CorpContacts {
+export interface CorpContacts {
     acceptor_id: number, //Who will accept the contract
     assignee_id: number, //ID to whom the contract is assigned, can be corporation or character ID
     availabilit: string, // To whom the contract is available
