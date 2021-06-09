@@ -1,10 +1,9 @@
 import ESI from 'eve-esi-client';
-import {Token} from 'eve-esi-client';
+import { Token } from 'eve-esi-client';
 
 export const getCorpContacts = (request: ESI['request'], token: Token, corporation_id:number) =>{
-    const endpoint = `/corporations/${corporation_id}/contracts/`;
     return request<CorpContacts[]>(
-        endpoint,
+        `/corporations/${corporation_id}/contracts/`,
         null,
         null,
         { token }

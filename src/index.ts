@@ -4,9 +4,8 @@ import MemoryProvider from 'eve-esi-client/dist/providers/memory.js';
 import Koa from 'koa';
 import Router from 'koa-router';
 import { CLIENT_ID, SECRET } from "./secret.js";
-import { AUTHORISATIONS } from "./data/authorisations.js";
 import { getCorpContacts } from "./endpoints.js";
-import { corperations } from "./data/corperations";
+import { CHARACTERS_BY_ID, CHARACTERS_BY_NAME } from "./data/characters.js";
 
 
 const PORT = 8002;
@@ -22,10 +21,14 @@ const esi = new ESI({
 const app = new Koa();
 const router = new Router();
 
-router.get('/login', async ctx => {
-    const redirectUrl = esi.getRedirectUrl('some-state', AUTHORISATIONS[98662212]);
-
-    ctx.body = `<a href="${redirectUrl}">Log in using Eve Online</a>`;
+router.get('/login/:user', async ctx => {
+    const user_id: number = CHARACTERS_BY_NAME[ctx.params.user]
+    if(  user_id == null ){
+        ctx.body = "Invalid user"
+    } else{
+        const redirectUrl = esi.getRedirectUrl('some-state', CHARACTERS_BY_ID[user_id].authorisations);
+        ctx.body = `<a href="${redirectUrl}">Log in using Eve Online</a>`;
+    }
 })
 
 router.get('/callback', async ctx => {
@@ -40,25 +43,20 @@ router.get('/welcome/:characterId', async ctx => {
     const characterId = Number(ctx.params.characterId)
     const character = await provider.getCharacter(characterId)
     const token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
-
-    let body = `<h1>Welcome, ${character.characterName}!</h1>`
+    const character_name: string = character.characterName.toLowerCase().replace(" ", "_")
+    let body = `<h1>Welcome, ${character_name}!</h1>`
 
     const response = await getCorpContacts(
         esi.request,
         token,
-        corperations['pixel knights']
+        CHARACTERS_BY_ID[character.characterId].corperation_id
     )
-
     const contracts = await response.json()
-
-    body += `<p>Contact: ${contracts.contract_id} has been assigned to ${contracts.for_corporation}.</p><ul>`
-
-    for (const skill of skills.skills) {
-        body += `<li>${skill.skill_id}: ${skill.active_skill_level}</li>`
+    body += `<p>Contacts:</p><ul>`
+    for (const contract of contracts) {
+        body += `<li>${contract.title},${contract.type},${contract.price}</li>`
     }
-
     body += '</ul>'
-
     ctx.body = body
 })
 
