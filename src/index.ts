@@ -4,7 +4,7 @@ import MemoryProvider from 'eve-esi-client/dist/providers/memory.js';
 import Koa from 'koa';
 import Router from 'koa-router';
 import { CLIENT_ID, SECRET } from "./secret.js";
-import { getCorpContacts } from "./endpoints.js";
+import { CorpContacts, getCorpContacts } from "./endpoints.js";
 import { CHARACTERS_BY_ID, CHARACTERS_BY_NAME } from "./data/characters.js";
 
 
@@ -45,12 +45,14 @@ router.get('/welcome/:characterId', async ctx => {
     const token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
     const character_name: string = character.characterName.toLowerCase().replace(" ", "_")
     let body = `<h1>Welcome, ${character_name}!</h1>`
+    
+    const response = await esi.request<CorpContacts[]>(
+        `/corporations/${CHARACTERS_BY_ID[character.characterId].corperation_id}/contracts/`,
+        null,
+        null,
+        { token }
+      );
 
-    const response = await getCorpContacts(
-        esi.request,
-        token,
-        CHARACTERS_BY_ID[character.characterId].corperation_id
-    )
     const contracts = await response.json()
     body += `<p>Contacts:</p><ul>`
     for (const contract of contracts) {
