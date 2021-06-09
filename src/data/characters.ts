@@ -27,7 +27,7 @@ export var CHARACTERS_BY_ID: { [id: number] : ICharacterById; } = {
         ]
     },
     2118131516: {
-        name: "tron_takeo",
+        name: "tron takeo",
         corperation_id: 98676626,
         corperation_name: 'moonbreeze mercenaries',
         authorisations: [
@@ -42,5 +42,5 @@ export var CHARACTERS_BY_ID: { [id: number] : ICharacterById; } = {
 export var CHARACTERS_BY_NAME: { [id: string] : number; } = {
     "florin flynn": 2115057016,
     "shodan ai": 2118556764,
-    "tron_takeo": 2118131516
+    "tron takeo": 2118131516
 }
