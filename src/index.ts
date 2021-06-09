@@ -4,7 +4,7 @@ import MemoryProvider from 'eve-esi-client/dist/providers/memory.js';
 import Koa from 'koa';
 import Router from 'koa-router';
 import { CLIENT_ID, SECRET } from "./secret.js";
-import { CorpContacts, getCorpContacts } from "./endpoints.js";
+import { CorpContacts, getCorpContacts, IStatus } from "./endpoints.js";
 import { CHARACTERS_BY_ID, CHARACTERS_BY_NAME } from "./data/characters.js";
 
 
@@ -56,9 +56,9 @@ router.get('/welcome/:characterId', async ctx => {
     const contracts = await response.json()
     body += `<p>Contacts:</p><ul>`
     for (const contract of contracts) {
-        if (contract.for_corporation == true){
-            body += `<li>${contract.title},${contract.type},${contract.price}</li>`
-        }
+        if (contract.assignee_id != CHARACTERS_BY_ID[character.characterId].corperation_id) continue;
+        if (contract.status != IStatus.in_progress && contract.status != IStatus.outstanding) continue;
+        body += `<li>title:${contract.title},type:${contract.type},price:${contract.price},issuer:${contract.issuer_id}</li>`
     }
     body += '</ul>'
     ctx.body = body

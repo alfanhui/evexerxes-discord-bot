@@ -16,7 +16,7 @@ export interface CorpContacts {
     availabilit: string, // To whom the contract is available
     buyout: number, //Buyout price (for Auctions only
     collateral:	number, //Collateral price (for Couriers only)
-    contract_id: number,
+    contract_id: number, //contract_id integer
     date_accepted: string, //Date of confirmation of contract
     date_completed:	string, //Date of completed of contract
     date_expired: string, //Expiration date of the contract
@@ -29,8 +29,21 @@ export interface CorpContacts {
     price: number, //Price of contract (for ItemsExchange and Auctions)
     reward:	number, //Remuneration for contract (for Couriers only)
     start_location_id: number, //Start location ID (for Couriers contract)
-    status: string, //Status of the the contract
+    status: IStatus, //Status of the the contract
     title:	string, //Title of the contract
     type:	string, //Type of the contract
     volume:	number //Volume of items in the contract
+}
+
+export enum IStatus {
+    outstanding, 
+    in_progress, 
+    finished_issuer, 
+    finished_contractor, 
+    finished, 
+    cancelled, 
+    rejected, 
+    failed,
+    deleted,
+    reversed 
 }
