@@ -24,7 +24,7 @@ const router = new Router();
 router.get('/login/:user', async ctx => {
     const user_id: number = CHARACTERS_BY_NAME[ctx.params.user]
     if(  user_id == null ){
-        ctx.body = "Invalid user"
+        ctx.body = `Invalid user: ${ctx.params.user}`
     } else{
         const redirectUrl = esi.getRedirectUrl('some-state', CHARACTERS_BY_ID[user_id].authorisations);
         ctx.body = `<a href="${redirectUrl}">Log in using Eve Online</a>`;
@@ -32,7 +32,7 @@ router.get('/login/:user', async ctx => {
 })
 
 router.get('/callback', async ctx => {
-    const code: string = ctx.query.code.toString();
+    const code = String(ctx.query.code);
     const { character } = await esi.register(code);
 
     ctx.res.statusCode = 302;
