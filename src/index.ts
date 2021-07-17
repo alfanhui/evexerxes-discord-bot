@@ -2,10 +2,11 @@
 import ESI from 'eve-esi-client';
 import MemoryProvider from 'eve-esi-client/dist/providers/memory.js';
 import Koa from 'koa';
-import Router from 'koa-router';
+
 import { CLIENT_ID, SECRET } from "./secret.js";
-import { CorpContacts, getCorpContacts, IStatus } from "./endpoints.js";
+import { CorpContacts, getCorpContacts, IStatus } from "./api/corpContacts.js";
 import { CHARACTERS_BY_ID, CHARACTERS_BY_NAME } from "./data/characters.js";
+import { Routes } from './routes.js';
 
 
 const PORT = 8002;
@@ -18,28 +19,28 @@ const esi = new ESI({
     callbackUri: CALLBACK_URI
 });
 
-const app = new Koa();
-const router = new Router();
 
-router.get('/login/:user', async ctx => {
+
+async function getUser(ctx: any) {
     const user_id: number = CHARACTERS_BY_NAME[ctx.params.user]
-    if(  user_id == null ){
+    if (user_id == null) {
         ctx.body = `Invalid user: ${ctx.params.user}`
-    } else{
+    } else {
         const redirectUrl = esi.getRedirectUrl('some-state', CHARACTERS_BY_ID[user_id].authorisations);
         ctx.body = `<a href="${redirectUrl}">Log in using Eve Online</a>`;
     }
-})
+}
 
-router.get('/callback', async ctx => {
+async function getCallback(ctx: any) {
     const code = String(ctx.query.code);
     const { character } = await esi.register(code);
 
     ctx.res.statusCode = 302;
     ctx.res.setHeader('Location', `/welcome/${character.characterId}`);
-})
+}
 
-router.get('/welcome/:characterId', async ctx => {
+
+async function getWelcome(ctx: any) {
     const characterId = Number(ctx.params.characterId)
     const character = await provider.getCharacter(characterId)
     const token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
@@ -51,7 +52,7 @@ router.get('/welcome/:characterId', async ctx => {
         null,
         null,
         { token }
-      );
+    );
 
     const contracts = await response.json()
     body += `<p>Contacts:</p><ul>`
@@ -62,9 +63,11 @@ router.get('/welcome/:characterId', async ctx => {
     }
     body += '</ul>'
     ctx.body = body
-})
+}
 
-app.use(router.middleware());
+const routes = new Routes(getUser, getCallback, getWelcome);
+const app = new Koa();
+app.use(routes.getRouter().middleware());
 app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`);
 });
