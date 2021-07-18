@@ -1,10 +1,19 @@
+import { CharacterMongo, UserQueries } from './db/userQueries';
+import { Character } from './../dist/db/databaseQueries.d';
+import { CharacterPublic, getPublicCharacterInfo } from './api/characterAPI';
+import MongoProvider from 'eve-esi-client-mongo-provider';
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
+import ESI, { Token } from 'eve-esi-client';
 
 export class Scheduler {
     scheduler = new ToadScheduler();
     job: SimpleIntervalJob;
     INVERVAL = 5;
-    constructor() {
+    provider: MongoProvider;
+    esi: ESI;
+    constructor(provider: MongoProvider, esi: ESI) {
+        this.provider = provider;
+        this.esi = esi;
         const task = new AsyncTask(
             'Pull EVE API',
             () => { return this.task(); },
@@ -16,10 +25,10 @@ export class Scheduler {
     }
 
     async task() {
-        //TODO GET EVE API
-        //TODO Compare results with existing
-        //TODO Post to Discord any notifications
-        //TODO Save new results
+        //TODO For each character...
+        const Character: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+        //TODO For each authorised method...
+        //TODO Call authorised method
     }
 
     // when stopping your app

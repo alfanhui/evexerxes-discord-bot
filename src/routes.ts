@@ -1,36 +1,24 @@
-import { DatabaseQueries } from './db/databaseQueries';
+import { UserQueries, CharacterMongo } from './db/userQueries';
 import ESI from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider'
 import Router from 'koa-router';
-import { CLIENT_ID, SECRET } from "./secret.js";
-import { CorpContracts, getCorpContracts, IStatus } from "./api/corpContracts.js";
-import { CHARACTERS_BY_ID, CHARACTERS_BY_NAME } from "./data/characters.js";
-
 
 export class Routes {
     router: any;
-    provider = new MongoProvider('mongodb://localhost/esi', {
-        connectionOptions: {
-            useCreateIndex: true,
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        }
-    })
+    provider: MongoProvider;
     esi: ESI;
-    CALLBACK_URI = 'https://www.garbagecollectorb.com/callback';
 
-    constructor() {
+    constructor(provider: MongoProvider, esi: ESI) {
+        this.provider = provider
+        this.esi = esi;
         this.router = new Router();
-        this.esi = new ESI({
-            provider: this.provider,
-            clientId: CLIENT_ID,
-            secretKey: SECRET,
-            callbackUri: this.CALLBACK_URI
-        });
+
         this.router.get('/login', (ctx: any) => this.getLogin(ctx));
-        this.router.get('/login/:user', (ctx: any) => this.getUser(ctx));
-        this.router.get('/callback', this.getCallback);
-        this.router.get('/welcome/:characterId', this.getWelcome);
+        this.router.get('/test', (ctx: any) => this.getTest(ctx));
+        this.router.post('/login', (ctx: any) => this.postLoginRedirect(ctx));
+        this.router.get('/callback', (ctx: any) => this.getCallback(ctx));
+        this.router.get('/delete/account/:accountId', (ctx: any) => this.deleteAccount(ctx));
+        this.router.get('/delete/character/:characterId', (ctx: any) => this.deleteCharacter(ctx));
     }
 
     getRouter() {
@@ -38,62 +26,73 @@ export class Routes {
     }
 
     async getLogin(ctx: any) {
-        let accounts: Array<string> = await DatabaseQueries.getAccounts(this.provider);
-        ctx.body = "<h1>Accounts</h1>";
-        accounts.forEach(account => {
-            ctx.body += `<p>${account}<\p>`
-        });
-        let characters: Array<string> = await DatabaseQueries.getCharacters(this.provider);
-        ctx.body += "<h1>Characters</h1>";
-        characters.forEach(character => {
-            ctx.body += `<p>${character}<\p>`
-        });
+        ctx.body = "<h1>Eve-Xerxes Discord Notifier Bot Logins</h1>"
+        let accounts: Array<string> = await UserQueries.getAccounts(this.provider);
+        ctx.body += "<h2>Accounts</h2>";
+        if (accounts.length == 0) {
+            ctx.body += "<i>none</i>"
+        } else {
+            ctx.body += "<table>";
+            accounts.forEach(account => {
+                ctx.body += String.raw`<tr><td>${account}<td><button onclick="location.href ='/delete/account/${account}'">Delete ${account}</button>`
+            });
+            ctx.body += "</table>"
+        }
+        let characters: Array<CharacterMongo> = await UserQueries.getCharacters(this.provider);
+        ctx.body += "<h2>Characters</h2>";
+        if (characters.length == 0) {
+            ctx.body += "<i>none</i>";
+        } else {
+            ctx.body += "<table><tr><th>Owner<th>Character Name<th>Character Id<th>Delete";
+            characters.forEach(character => {
+                ctx.body += `<tr><td>${character.owner}<td>${character.characterName}<td>${character.characterId}<td><button onclick="location.href ='/delete/character/${character.characterId}'">Delete ${character.characterName}</button>`
+            });
+            ctx.body += "</table>"
+        }
+        ctx.body += `<hr><h2>New Login</h2><h3>Select Authorisations:</h3><form action='/login'  method='post' name='form1'>
+            <input type="checkbox" id="auth1" name="read_blueprints" value="esi-corporations.read_blueprints.v1" checked="checked">
+            <label for="auth1">esi-corporations.read_blueprints.v1</label><br>
+            <input type="checkbox" id="auth2" name="read_structures" value="esi-corporations.read_structures.v1" checked="checked">
+            <label for="auth2">esi-corporations.read_structures.v1</label><br>
+            <input type="checkbox" id="auth3" name="read_customs_offices" value="esi-planets.read_customs_offices.v1" checked="checked">
+            <label for="auth3">esi-planets.read_customs_offices.v1</label><br>
+            <input type="checkbox" id="auth4" name="read_corporation_contracts" value="esi-contracts.read_corporation_contracts.v1" checked="checked">
+            <label for="auth4">esi-contracts.read_corporation_contracts.v1</label><br>
+            <input type="submit" value="Add new login">
+            </form>`
     }
 
-    async getUser(ctx: any) {
-        const user_id: number = CHARACTERS_BY_NAME[ctx.params.user]
-        this.provider.createAccount(user_id.toString())
-        if (user_id == null) {
-            ctx.body = `Invalid user: ${ctx.params.user}`
-        } else {
-            const redirectUrl = this.esi.getRedirectUrl('some-state', CHARACTERS_BY_ID[user_id].authorisations);
-            ctx.body = `<a href="${redirectUrl}">Log in using Eve Online</a>`;
-        }
+    async getTest(ctx: any) {
+        console.log(ctx);
+        ctx.body = "<h1>Test Page</h1>";
+        this.provider.createAccount("user1");
+        this.provider.createCharacter("user1", 2115057016, "Florin Flynn");
+        this.provider.createAccount("user2");
+        this.provider.createCharacter("user2", 2118131516, "Tron Takeo");
+    }
+
+    async postLoginRedirect(ctx: any) {
+        const authorisations: string[] = Object.values(ctx.request.body);
+        const redirectUrl = this.esi.getRedirectUrl('some-state', authorisations);
+        ctx.redirect(redirectUrl)
     }
 
     async getCallback(ctx: any) {
         const code = String(ctx.query.code);
-        const { character } = await this.esi.register(code);
-
+        await this.esi.register(code);
         ctx.res.statusCode = 302;
-        ctx.res.setHeader('Location', `/welcome/${character.characterId}`);
+        ctx.res.setHeader('Location', `/login`);
     }
 
+    async deleteAccount(ctx: any) {
+        const accountId: string = ctx.params.accountId
+        await this.provider.deleteAccount(accountId);
+        ctx.redirect("/login")
+    }
 
-    async getWelcome(ctx: any) {
-        const characterId = Number(ctx.params.characterId)
-        const character = await this.provider.getCharacter(characterId)
-        const token = await this.provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
-        const character_name: string = character.characterName.toLowerCase().replace(" ", "_")
-        let body = `<h1>Welcome, ${character_name}!</h1>`
-
-        const response = await getCorpContracts(this.esi['request'], token, CHARACTERS_BY_ID[character.characterId].corperation_id);
-
-        // const response = await this.esi.request<CorpContacts[]>(
-        //     `/corporations/${CHARACTERS_BY_ID[character.characterId].corperation_id}/contracts/`,
-        //     null,
-        //     null,
-        //     { token }
-        // );
-
-        const contracts: CorpContracts[] = await response.json()
-        body += `<p>Contacts:</p><ul>`
-        for (const contract of contracts) {
-            if (contract.assignee_id != CHARACTERS_BY_ID[character.characterId].corperation_id) continue;
-            if (contract.status != IStatus.in_progress && contract.status != IStatus.outstanding) continue;
-            body += `<li>title:${contract.title},type:${contract.type},price:${contract.price},issuer:${contract.issuer_id}</li>`
-        }
-        body += '</ul>'
-        ctx.body = body
+    async deleteCharacter(ctx: any) {
+        const characterId: number = ctx.params.characterId
+        await this.provider.deleteCharacter(characterId);
+        ctx.redirect("/login")
     }
 }
