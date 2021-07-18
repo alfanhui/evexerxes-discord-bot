@@ -4,9 +4,12 @@ Eve corp discord bot notifier
 
 ## Dependencies
 
-```bash
-npm install --global npx
-```
+1. 
+    ```bash
+    npm install --global npx
+    ```
+
+2. [Setup MongoDB](https://docs.mongodb.com/manual/administration/install-community/), create a database to be called `esi`, and make sure that it is accessible at [mongo://localhost/esi](mongo://localhost/esi). Currently tested with Mongo Community Edition V5.
 
 ## How to setup
 

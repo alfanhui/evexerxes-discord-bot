@@ -16,7 +16,6 @@ export class Scheduler {
     }
 
     async task() {
-        console.debug("Hello!")
         //TODO GET EVE API
         //TODO Compare results with existing
         //TODO Post to Discord any notifications

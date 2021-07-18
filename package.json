@@ -5,7 +5,8 @@
     "main": "./dist/index.js",
     "scripts": {
         "pi-start": "tsc --p tsconfig.json && nodemon ./dist/index.js",
-        "start": "npx tsc --p tsconfig.json && nodemon ./dist/index.js ",
+        "start": "npx tsc --p tsconfig.json && nodemon ./dist/index.js",
+        "dev": "concurrently \"tsc -w --p tsconfig.json\" \"nodemon ./dist/index.js\"",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
