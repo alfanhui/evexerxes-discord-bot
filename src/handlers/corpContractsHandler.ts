@@ -1,12 +1,13 @@
+import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { getPublicCharacterInfo } from '../api/characterAPI';
-import { CorpContracts, getCorpContracts, IStatus } from '../api/corpContractsAPI';
+import { CorpContract, getCorpContracts, IStatus } from '../api/corpContractsAPI';
 
-export async function syncCorpContacts(provider: MongoProvider, characterId: number) {
+export async function syncCorpContacts(provider: MongoProvider, esi: ESI, characterId: number) {
     //TODO CALL EVE API
-    const corperationId: number = await (await (await getPublicCharacterInfo(this.esi['request'], null, 2118131516)).json()).corporation_id;
-    const token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
-    const contracts: CorpContracts[] = await (await getCorpContracts(this.esi['request'], token, corperationId)).json();
+    const corperationId: number = await (await (await getPublicCharacterInfo(esi['request'], null, 2118131516)).json()).corporation_id;
+    const token: Token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
+    const contracts: CorpContract[] = await (await getCorpContracts(esi['request'], token, corperationId)).json();
     //TODO Compare results with existing
     var body: string;
     for (const contract of contracts) {

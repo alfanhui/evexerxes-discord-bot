@@ -1,3 +1,5 @@
+import { CorpContract, IStatus, IType } from './api/corpContractsAPI';
+import { ContractQueries } from './db/contractQueries';
 import { UserQueries, CharacterMongo } from './db/userQueries';
 import ESI from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider'
@@ -65,10 +67,37 @@ export class Routes {
     async getTest(ctx: any) {
         console.log(ctx);
         ctx.body = "<h1>Test Page</h1>";
-        this.provider.createAccount("user1");
-        this.provider.createCharacter("user1", 2115057016, "Florin Flynn");
-        this.provider.createAccount("user2");
-        this.provider.createCharacter("user2", 2118131516, "Tron Takeo");
+
+        // var corpContact: CorpContract = {
+        //     acceptor_id: null,
+        //     assignee_id: null,
+        //     availability: null,
+        //     buyout: 0,
+        //     collateral: 0,
+        //     contract_id: 12345,
+        //     date_accepted: "monday",
+        //     date_completed: "tuesday",
+        //     date_expired: "wednesday",
+        //     date_issued: "sunday",
+        //     days_to_complete: 3,
+        //     end_location_id: 6969,
+        //     for_corporation: false,
+        //     issuer_corporation_id: 98176669,
+        //     issuer_id: 2115057016,
+        //     price: 1000000,
+        //     reward: null,
+        //     start_location_id: null,
+        //     status: IStatus.in_progress,
+        //     title: "ore",
+        //     type: IType.item_exchange,
+        //     volume: 5000
+        // }
+        // ContractQueries.saveContact(this.provider, 98176669, corpContact);
+
+        // this.provider.createAccount("user1");
+        // this.provider.createCharacter("user1", 2115057016, "Florin Flynn");
+        // this.provider.createAccount("user2");
+        // this.provider.createCharacter("user2", 2118131516, "Tron Takeo");
     }
 
     async postLoginRedirect(ctx: any) {

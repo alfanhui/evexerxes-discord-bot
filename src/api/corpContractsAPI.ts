@@ -2,7 +2,7 @@ import ESI from 'eve-esi-client';
 import { Token } from 'eve-esi-client';
 
 export const getCorpContracts = (request: ESI['request'], token: Token, corporation_id: number) => {
-    return request<CorpContracts[]>(
+    return request<CorpContract[]>(
         `/corporations/${corporation_id}/contracts/`,
         null,
         null,
@@ -10,7 +10,7 @@ export const getCorpContracts = (request: ESI['request'], token: Token, corporat
     );
 }
 
-export interface CorpContracts {
+export interface CorpContract {
     acceptor_id: number, //Who will accept the contract
     assignee_id: number, //ID to whom the contract is assigned, can be corporation or character ID
     availability: string, // To whom the contract is available
@@ -31,7 +31,7 @@ export interface CorpContracts {
     start_location_id: number, //Start location ID (for Couriers contract)
     status: IStatus, //Status of the the contract
     title: string, //Title of the contract
-    type: string, //Type of the contract
+    type: IType, //Type of the contract
     volume: number //Volume of items in the contract
 }
 
@@ -46,4 +46,12 @@ export enum IStatus {
     failed,
     deleted,
     reversed
+}
+
+export enum IType {
+    unknown,
+    item_exchange,
+    auction,
+    courier,
+    loan
 }
