@@ -47,12 +47,12 @@ export class ContractQueries {
         return await provider.connection.collection(corperationId.toString() + "_contracts").deleteMany({ $or: filter });
     }
 
-    static async isContractPresent(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
+    static async isPresent(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
         return await provider.connection.collection(corperationId.toString() + "_contracts").find({ "contract_id": corpContract.contract_id }).count() == 1;
     }
 
-    static async isNotifiableContract(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
-        const foundContract: boolean = await this.isContractPresent(provider, corperationId, corpContract);
+    static async isNotifiable(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
+        const foundContract: boolean = await this.isPresent(provider, corperationId, corpContract);
         if (foundContract || (corpContract.status != IStatus.in_progress && corpContract.status != IStatus.outstanding)) {
             return false;
         }

@@ -1,8 +1,6 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
-
 import { Db, MongoClient } from 'mongodb';
 import MongoProvider from "eve-esi-client-mongo-provider";
-
 
 // Extend the default timeout so MongoDB binaries can download
 jest.setTimeout(60000);
@@ -32,6 +30,7 @@ export class DBManager {
         return await this.server.stop();
     }
 
+    //Doesn't work?
     async cleanup(collections: string[]) {
         for (let collection in collections) {
             await this.db.collection(collection).deleteMany({});

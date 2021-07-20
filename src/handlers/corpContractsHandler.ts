@@ -16,7 +16,7 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, charac
     for (const contract of contracts) {
         //Compare results with existing
         if (contract.assignee_id != corperationId) continue;
-        if (!ContractQueries.isNotifiableContract(provider, corperationId, contract)) continue;
+        if (!ContractQueries.isNotifiable(provider, corperationId, contract)) continue;
         //TODO Post to Discord any notifications
         //Save new results
         ContractQueries.saveOrUpdateContract(provider, corperationId, contract);
