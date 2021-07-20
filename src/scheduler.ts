@@ -1,10 +1,10 @@
-import { CharacterMongo, UserQueries } from './db/userQueries';
+import { CharacterMongo, UserQueries } from './daos/userDAO';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 import ESI from 'eve-esi-client';
 import { syncCorpContacts } from './handlers/corpContractsHandler';
 import { CorpContract } from './api/corpContractsAPI';
-import { ContractQueries } from './db/contractQueries';
+import { ContractQueries } from './daos/contractDAO';
 
 export class Scheduler {
     scheduler = new ToadScheduler();
@@ -26,7 +26,7 @@ export class Scheduler {
     }
 
     async task() {
-        //TODO For each character...
+        //For each character...
         var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
         characters.forEach((character) => {
             //syncCorpContacts(this.provider, this.esi, character.characterId);

@@ -1,6 +1,6 @@
 import { CorpContract, IStatus, IType } from './api/corpContractsAPI';
-import { ContractQueries } from './db/contractQueries';
-import { UserQueries, CharacterMongo } from './db/userQueries';
+import { ContractQueries } from './daos/contractDAO';
+import { UserQueries, CharacterMongo } from './daos/userDAO';
 import ESI from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider'
 import Router from 'koa-router';
@@ -64,6 +64,32 @@ export class Routes {
             </form>`
     }
 
+
+    async postLoginRedirect(ctx: any) {
+        const authorisations: string[] = Object.values(ctx.request.body);
+        const redirectUrl = this.esi.getRedirectUrl('some-state', authorisations);
+        ctx.redirect(redirectUrl)
+    }
+
+    async getCallback(ctx: any) {
+        const code = String(ctx.query.code);
+        await this.esi.register(code);
+        ctx.res.statusCode = 302;
+        ctx.res.setHeader('Location', `/login`);
+    }
+
+    async deleteAccount(ctx: any) {
+        const accountId: string = ctx.params.accountId
+        await this.provider.deleteAccount(accountId);
+        ctx.redirect("/login")
+    }
+
+    async deleteCharacter(ctx: any) {
+        const characterId: number = ctx.params.characterId
+        await this.provider.deleteCharacter(characterId);
+        ctx.redirect("/login")
+    }
+
     async getTest(ctx: any) {
         console.log(ctx);
         ctx.body = "<h1>Test Page</h1>";
@@ -98,30 +124,5 @@ export class Routes {
         // this.provider.createCharacter("user1", 2115057016, "Florin Flynn");
         // this.provider.createAccount("user2");
         // this.provider.createCharacter("user2", 2118131516, "Tron Takeo");
-    }
-
-    async postLoginRedirect(ctx: any) {
-        const authorisations: string[] = Object.values(ctx.request.body);
-        const redirectUrl = this.esi.getRedirectUrl('some-state', authorisations);
-        ctx.redirect(redirectUrl)
-    }
-
-    async getCallback(ctx: any) {
-        const code = String(ctx.query.code);
-        await this.esi.register(code);
-        ctx.res.statusCode = 302;
-        ctx.res.setHeader('Location', `/login`);
-    }
-
-    async deleteAccount(ctx: any) {
-        const accountId: string = ctx.params.accountId
-        await this.provider.deleteAccount(accountId);
-        ctx.redirect("/login")
-    }
-
-    async deleteCharacter(ctx: any) {
-        const characterId: number = ctx.params.characterId
-        await this.provider.deleteCharacter(characterId);
-        ctx.redirect("/login")
     }
 }

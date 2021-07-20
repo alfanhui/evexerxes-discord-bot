@@ -1,9 +1,9 @@
 import ESI from 'eve-esi-client';
 import { Token } from 'eve-esi-client';
 
-export const getCorpContracts = (request: ESI['request'], token: Token, corporation_id: number) => {
+export const getCorpContracts = (request: ESI['request'], token: Token, corporationId: number) => {
     return request<CorpContract[]>(
-        `/corporations/${corporation_id}/contracts/`,
+        `/corporations/${corporationId}/contracts/`,
         null,
         null,
         { token }

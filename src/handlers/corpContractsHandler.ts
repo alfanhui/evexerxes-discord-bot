@@ -2,19 +2,23 @@ import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { getPublicCharacterInfo } from '../api/characterAPI';
 import { CorpContract, getCorpContracts, IStatus } from '../api/corpContractsAPI';
+import { ContractQueries } from "../daos/contractDAO";
 
 export async function syncCorpContacts(provider: MongoProvider, esi: ESI, characterId: number) {
-    //TODO CALL EVE API
-    const corperationId: number = await (await (await getPublicCharacterInfo(esi['request'], null, 2118131516)).json()).corporation_id;
+    //Request update from Eve API
+    const corperationId: number = (await (await getPublicCharacterInfo(esi['request'], null, 2118131516)).json()).corporation_id;
     const token: Token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
     const contracts: CorpContract[] = await (await getCorpContracts(esi['request'], token, corperationId)).json();
-    //TODO Compare results with existing
-    var body: string;
+
+    //Remove any contacts that aren't in the original request.
+    ContractQueries.reduceContracts(provider, corperationId, contracts);
+
     for (const contract of contracts) {
+        //Compare results with existing
         if (contract.assignee_id != corperationId) continue;
-        if (contract.status != IStatus.in_progress && contract.status != IStatus.outstanding) continue;
-        body += `<li>title:${contract.title},type:${contract.type},price:${contract.price},issuer:${contract.issuer_id}</li>`
+        if (!ContractQueries.isNotifiableContract(provider, corperationId, contract)) continue;
+        //TODO Post to Discord any notifications
+        //Save new results
+        ContractQueries.saveOrUpdateContract(provider, corperationId, contract);
     }
-    //TODO Post to Discord any notifications
-    //TODO Save new results
 }

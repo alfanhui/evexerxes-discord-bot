@@ -7,7 +7,7 @@
         "pi-start": "tsc --p tsconfig.json && nodemon ./dist/index.js",
         "start": "npx tsc --p tsconfig.json && nodemon ./dist/index.js",
         "dev": "concurrently \"tsc -w --p tsconfig.json\" \"nodemon ./dist/index.js\"",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest --detectOpenHandles"
     },
     "repository": {
         "type": "git",
@@ -31,10 +31,15 @@
         "toad-scheduler": "^1.5.0"
     },
     "devDependencies": {
+        "@types/jest": "^26.0.24",
         "@types/koa": "^2.13.3",
         "@types/koa-router": "^7.4.2",
         "@types/lodash": "^4.14.170",
         "concurrently": "^6.2.0",
+        "jest": "^27.0.6",
+        "mongodb": "^3.6.10",
+        "mongodb-memory-server": "^7.3.0",
+        "ts-jest": "^27.0.3",
         "ts-node": "^10.0.0",
         "typescript": "^4.3.2"
     }

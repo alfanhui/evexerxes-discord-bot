@@ -1,9 +1,9 @@
-import { Scheduler } from './scheduler';
+import { Scheduler } from './src/scheduler';
 import Koa from 'koa';
-import { Routes } from './routes';
+import { Routes } from './src/routes';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import ESI from 'eve-esi-client';
-import { CLIENT_ID, SECRET } from "./secret.js";
+import { CLIENT_ID, SECRET } from "./src/secret.js";
 
 const CALLBACK_URI = 'https://www.garbagecollectorb.com/callback';
 
