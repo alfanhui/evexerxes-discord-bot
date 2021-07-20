@@ -6,6 +6,7 @@ import { DBManager } from '../utils/db';
 var dbman = new DBManager();
 var provider: MongoProvider;
 const corperationId: number = 12345;
+const collections: string[] = [`${corperationId}_contracts`];
 const corpContract: CorpContract = {
     acceptor_id: null,
     assignee_id: null,
@@ -45,12 +46,11 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-    await dbman.cleanup();
+    await dbman.cleanup(collections);
 })
 
-afterAll((done) => {
-    dbman.stop(provider);
-    done();
+afterAll(async () => {
+    await dbman.stop(provider);
 });
 
 test('save a contract', async () => {

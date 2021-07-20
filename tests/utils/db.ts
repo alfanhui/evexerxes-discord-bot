@@ -7,9 +7,6 @@ import MongoProvider from "eve-esi-client-mongo-provider";
 // Extend the default timeout so MongoDB binaries can download
 jest.setTimeout(60000);
 
-// List your collection names here
-const COLLECTIONS = ['12345_contracts'];
-
 export class DBManager {
     db: Db;
     server: MongoMemoryServer;
@@ -29,14 +26,14 @@ export class DBManager {
         return url;
     }
 
-    stop(provider: MongoProvider) {
-        provider.connection.close();
-        this.connection.close();
-        return this.server.stop();
+    async stop(provider: MongoProvider) {
+        await provider.connection.close();
+        await this.connection.close();
+        return await this.server.stop();
     }
 
-    async cleanup() {
-        for (let collection in COLLECTIONS) {
+    async cleanup(collections: string[]) {
+        for (let collection in collections) {
             await this.db.collection(collection).deleteMany({});
         }
     }
