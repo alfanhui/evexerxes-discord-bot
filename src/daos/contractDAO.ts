@@ -3,47 +3,36 @@ import { CorpContract, IStatus } from '../api/corpContractsAPI';
 
 export class ContractQueries {
     static async getContracts(provider: MongoProvider, corperationId: number) {
-        var response = provider.connection.collection(corperationId.toString() + "_contracts").find();
-        let corpContacts: Array<CorpContract> = new Array();
-        await response.forEach((item) => {
-            corpContacts.push(item);
-        });
-        return corpContacts;
+        return await provider.connection.collection(corperationId.toString() + "_contracts").find().toArray();
     }
 
     static async saveOrUpdateContract(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
         return await provider.connection.collection(corperationId.toString() + "_contracts").updateOne({ "contract_id": corpContract.contract_id }, { $set: corpContract }, { upsert: true });
     }
 
-    static async reduceContracts(provider: MongoProvider, corperationId: number, corpContracts: Array<CorpContract>) {
-        var filter: Array<Object> = new Array();
-        corpContracts.forEach((item) =>
-            filter.push({ "contract_id": item.contract_id })
+    static async removeOldContracts(provider: MongoProvider, corperationId: number, corpContracts: Array<CorpContract>) {
+        var filter: Array<number> = corpContracts.map((item) =>
+            item.contract_id
         );
         //find with nor
-        console.log(filter.toLocaleString());
-        var response = provider.connection.collection(corperationId.toString() + "_contracts").find({
-            "$not": [
-                filter.toLocaleString()
-            ]
-        });
-        let removeCorpContacts: Array<CorpContract> = new Array();
-        await response.forEach((item) => {
-            removeCorpContacts.push(item);
-        });
+        let oldCorpContacts: Array<CorpContract> = await provider.connection.collection(corperationId.toString() + "_contracts").find({
+            "contract_id": {
+                $nin: filter
+            }
+        }).toArray();
+
         //delete contracts that are returned
-        this.deleteContracts(provider, corperationId, removeCorpContacts);
+        this.deleteContracts(provider, corperationId, oldCorpContacts);
     }
 
     static async deleteContract(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
+        if (!corpContract || corpContract == undefined) return Promise.resolve();
         return await provider.connection.collection(corperationId.toString() + "_contracts").deleteOne({ "contract_id": corpContract.contract_id });
     }
 
     static async deleteContracts(provider: MongoProvider, corperationId: number, corpContracts: Array<CorpContract>) {
-        var filter: Array<Object> = new Array();
-        corpContracts.forEach((item) =>
-            filter.push({ "contract_id": item.contract_id })
-        );
+        if (!corpContracts || corpContracts == undefined || corpContracts.length == 0) return Promise.resolve();
+        var filter: Array<Object> = corpContracts.map((item) => { return { "contract_id": item.contract_id } });
         return await provider.connection.collection(corperationId.toString() + "_contracts").deleteMany({ $or: filter });
     }
 

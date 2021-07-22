@@ -11,7 +11,7 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, charac
     const contracts: CorpContract[] = await (await getCorpContracts(esi['request'], token, corperationId)).json();
 
     //Remove any contacts that aren't in the original request.
-    ContractQueries.reduceContracts(provider, corperationId, contracts);
+    ContractQueries.removeOldContracts(provider, corperationId, contracts);
 
     for (const contract of contracts) {
         //Compare results with existing
