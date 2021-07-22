@@ -16,7 +16,6 @@ export class Routes {
         this.router = new Router();
 
         this.router.get('/login', (ctx: any) => this.getLogin(ctx));
-        this.router.get('/test', (ctx: any) => this.getTest(ctx));
         this.router.post('/login', (ctx: any) => this.postLoginRedirect(ctx));
         this.router.get('/callback', (ctx: any) => this.getCallback(ctx));
         this.router.get('/delete/account/:accountId', (ctx: any) => this.deleteAccount(ctx));
@@ -64,7 +63,6 @@ export class Routes {
             </form>`
     }
 
-
     async postLoginRedirect(ctx: any) {
         const authorisations: string[] = Object.values(ctx.request.body);
         const redirectUrl = this.esi.getRedirectUrl('some-state', authorisations);
@@ -88,41 +86,5 @@ export class Routes {
         const characterId: number = ctx.params.characterId
         await this.provider.deleteCharacter(characterId);
         ctx.redirect("/login")
-    }
-
-    async getTest(ctx: any) {
-        console.log(ctx);
-        ctx.body = "<h1>Test Page</h1>";
-
-        // var corpContact: CorpContract = {
-        //     acceptor_id: null,
-        //     assignee_id: null,
-        //     availability: null,
-        //     buyout: 0,
-        //     collateral: 0,
-        //     contract_id: 12345,
-        //     date_accepted: "monday",
-        //     date_completed: "tuesday",
-        //     date_expired: "wednesday",
-        //     date_issued: "sunday",
-        //     days_to_complete: 3,
-        //     end_location_id: 6969,
-        //     for_corporation: false,
-        //     issuer_corporation_id: 98176669,
-        //     issuer_id: 2115057016,
-        //     price: 1000000,
-        //     reward: null,
-        //     start_location_id: null,
-        //     status: IStatus.in_progress,
-        //     title: "ore",
-        //     type: IType.item_exchange,
-        //     volume: 5000
-        // }
-        // ContractQueries.saveContact(this.provider, 98176669, corpContact);
-
-        // this.provider.createAccount("user1");
-        // this.provider.createCharacter("user1", 2115057016, "Florin Flynn");
-        // this.provider.createAccount("user2");
-        // this.provider.createCharacter("user2", 2118131516, "Tron Takeo");
     }
 }
