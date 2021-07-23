@@ -23,12 +23,18 @@ npm install
 npm start
 ```
 
+## Features
+
+* notify when corp contracts are created
+* * validate if its from an accepted station
+
+
+
 ## ideas
 
 * have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enroles players in discord groups. When players leave, they can be automatically unenrolled
 
 * notify when someone wants to join or has left the corp
-* notify when corp contracts are created
 * show available corperate blueprints
 * show / notify on corp wallet changes
 * notify significant changes to corperate containers ( putting in, taking away)
