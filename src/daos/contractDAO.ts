@@ -3,7 +3,7 @@ import { CorpContract, IStatus } from '../api/corpContractsAPI';
 
 export class ContractQueries {
     static async getContracts(provider: MongoProvider, corperationId: number) {
-        return await provider.connection.collection(corperationId.toString() + "_contracts").find().toArray();
+        return await provider.connection.collection(corperationId.toString() + "_contracts").find().toArray() as Array<CorpContract>;
     }
 
     static async saveOrUpdateContract(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
@@ -37,7 +37,7 @@ export class ContractQueries {
     }
 
     static async isPresent(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {
-        return await provider.connection.collection(corperationId.toString() + "_contracts").find({ "contract_id": corpContract.contract_id }).count() == 1;
+        return await provider.connection.collection(corperationId.toString() + "_contracts").find({ "contract_id": corpContract.contract_id }).count() > 0;
     }
 
     static async isNotifiable(provider: MongoProvider, corperationId: number, corpContract: CorpContract) {

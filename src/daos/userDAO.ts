@@ -8,30 +8,23 @@ export interface CharacterMongo {
     lastLoggedIn: Date
 }
 
+const accountsCollection: string = "accounts";
+const charactersCollection: string = "characters";
+
 export class UserQueries {
     static async getAccounts(provider: MongoProvider) {
-        let response = provider.connection.db.collection('accounts').find();
-        let owners: Array<string> = new Array();
-        await response.forEach((item) =>
-            owners.push(item.owner)
-        );
-        return owners;
+        return await provider.connection.db.collection(accountsCollection).find().toArray() as Array<string>;
     }
 
     static async getCharacters(provider: MongoProvider) {
-        let response = provider.connection.db.collection('characters').find();
-        let characters: Array<CharacterMongo> = new Array();
-        await response.forEach((item) =>
-            characters.push(item)
-        );
-        return characters;
+        return await provider.connection.db.collection(charactersCollection).find().toArray() as Array<CharacterMongo>;
     }
 
     static async deleteAccount(provider: MongoProvider, characterId: string) {
-        return await provider.connection.db.collection('characters').deleteOne({ "characterId": characterId });
+        return await provider.connection.db.collection(charactersCollection).deleteOne({ characterId });
     }
 
     static async deleteCharacter(provider: MongoProvider, characterId: string) {
-        return await provider.connection.db.collection('characters').deleteOne({ "characterId": characterId });
+        return await provider.connection.db.collection(charactersCollection).deleteOne({ characterId });
     }
 }

@@ -3,18 +3,23 @@ import MongoProvider from 'eve-esi-client-mongo-provider';
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 import ESI from 'eve-esi-client';
 import { syncCorpContacts } from './handlers/corpContractsHandler';
-import { CorpContract } from './api/corpContractsAPI';
-import { ContractQueries } from './daos/contractDAO';
+import { DiscordNotifier } from './notifier/discordNotifier';
+import { AcceptedChannelMongo, DiscordQueries } from './daos/discordDAO';
+import { Corperation, getCorperationInfo } from './api/corperationAPI';
+import { getPublicCharacterInfo } from './api/characterAPI';
 
 export class Scheduler {
     scheduler = new ToadScheduler();
     job: SimpleIntervalJob;
-    INVERVAL = 5;
+    INVERVAL = 30;
     provider: MongoProvider;
     esi: ESI;
-    constructor(provider: MongoProvider, esi: ESI) {
+    discordNotifier: DiscordNotifier;
+
+    constructor(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier) {
         this.provider = provider;
         this.esi = esi;
+        this.discordNotifier = discordNotifier;
         const task = new AsyncTask(
             'Pull EVE API',
             () => { return this.task(); },
@@ -27,18 +32,17 @@ export class Scheduler {
 
     async task() {
         //For each character...
+        var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
         var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
-        characters.forEach((character) => {
-            //syncCorpContacts(this.provider, this.esi, character.characterId);
-        });
+        characters.forEach(async(character) => {
+            //TODO For each authorised method...
+            const corperationId: number = (await getPublicCharacterInfo(this.esi['request'], null, character.characterId)).corporation_id;
+            var corperation: Corperation = await getCorperationInfo(this.esi['request'], null, corperationId);
+            corperation.corperation_id = corperationId;
 
-        var corpContracts: Array<CorpContract> = await ContractQueries.getContracts(this.provider, 98176669);
-        console.log("length" + corpContracts.length)
-        corpContracts.forEach((corpContract) =>
-            console.log(corpContract)
-        );
-        //TODO For each authorised method...
-        //TODO Call authorised method
+            //CorpContracts
+            syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+        });
     }
 
     // when stopping your app

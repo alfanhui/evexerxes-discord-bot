@@ -1,13 +1,13 @@
 import ESI from 'eve-esi-client';
 import { Token } from 'eve-esi-client';
 
-export const getCorpContracts = (request: ESI['request'], token: Token, corporationId: number) => {
-    return request<CorpContract[]>(
+export const getCorpContracts = async(request: ESI['request'], token: Token, corporationId: number) => {
+    return (await request<CorpContract[]>(
         `/corporations/${corporationId}/contracts/`,
         null,
         null,
         { token }
-    );
+    )).json();
 }
 
 export interface CorpContract {

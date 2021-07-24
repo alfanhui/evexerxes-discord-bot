@@ -4,31 +4,38 @@ Eve corp discord bot notifier
 
 ## Dependencies
 
-1. 
-    ```bash
-    npm install --global npx
-    ```
+1. Install npx
+
+        ```bash
+        npm install --global npx
+        ```
 
 2. [Setup MongoDB](https://docs.mongodb.com/manual/administration/install-community/), create a database to be called `esi`, and make sure that it is accessible at [mongo://localhost/esi](mongo://localhost/esi). Currently tested with Mongo Community Edition V5.
 
 ## How to setup
 
-```bash
-npm install
-```
+    ```bash
+    npm install
+    ```
 
 ## How to run
 
-```bash
-npm start
-```
+    ```bash
+    npm start
+    ```
+
+## How to add
+
+[https://discord.com/oauth2/authorize?&client_id=000000000000000000&scope=bot&permissions=8](https://discord.com/oauth2/authorize?&client_id=000000000000000000&scope=bot&permissions=8)
+
+## Icons
+
+[https://wiki.eveuniversity.org/UniWiki:Icons](https://wiki.eveuniversity.org/UniWiki:Icons)
 
 ## Features
 
 * notify when corp contracts are created
-* * validate if its from an accepted station
-
-
+  * validate if its from an accepted station
 
 ## ideas
 
