@@ -1,4 +1,4 @@
-import { UserQueries, CharacterMongo } from './daos/userDAO';
+import { UserQueries, CharacterMongo, AccountMongo } from './daos/userDAO';
 import ESI, { Account, Character, Provider, Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider'
 import Router from 'koa-router';
@@ -29,14 +29,14 @@ export class Routes {
 
     async getLogin(ctx: any) {
         ctx.body = "<h1>Eve-Xerxes Discord Notifier Bot Logins</h1>"
-        let accounts: Array<string> = await UserQueries.getAccounts(this.provider);
+        let accounts: Array<AccountMongo> = await UserQueries.getAccounts(this.provider);
         ctx.body += "<h2>Accounts</h2>";
         if (accounts.length == 0) {
             ctx.body += "<i>none</i>"
         } else {
             ctx.body += "<table>";
             accounts.forEach(account => {
-                ctx.body += String.raw`<tr><td>${account}<td><button onclick="location.href ='/delete/account/${account}'">Delete ${account}</button>`
+                ctx.body += String.raw`<tr><td>${account.owner}<td><button onclick="location.href ='/delete/account/${account.owner}'">Delete ${account.owner}</button>`
             });
             ctx.body += "</table>"
         }
