@@ -13,7 +13,7 @@ export interface Station {
     max_dockable_ship_volume: number //max_dockable_ship_volume number
     name: string // name string
     office_rental_cost:	number //office_rental_cost number
-    owner: number //ID of the corporation that controls this station
+    owner?: number //ID of the corporation that controls this station
     position: IPosition
     race_id?: number //race_id integer
     reprocessing_efficiency: number //reprocessing_efficiency number

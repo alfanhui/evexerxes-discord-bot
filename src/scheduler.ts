@@ -31,18 +31,22 @@ export class Scheduler {
     }
 
     async task() {
-        //For each character...
-        var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
-        var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
-        characters.forEach(async(character) => {
-            //TODO For each authorised method...
-            const corperationId: number = (await getPublicCharacterInfo(this.esi['request'], null, character.characterId)).corporation_id;
-            var corperation: Corperation = await getCorperationInfo(this.esi['request'], null, corperationId);
-            corperation.corperation_id = corperationId;
+        try{
+            //For each character...
+            var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async(character) => {
+                //TODO For each authorised method...
+                const corperationId: number = (await getPublicCharacterInfo(this.esi['request'], null, character.characterId)).corporation_id;
+                var corperation: Corperation = await getCorperationInfo(this.esi['request'], null, corperationId);
+                corperation.corperation_id = corperationId;
 
-            //CorpContracts
-            syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
-        });
+                //CorpContracts
+                syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+            });
+        }catch(e){
+            console.log(e)
+        }
     }
 
     // when stopping your app

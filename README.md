@@ -4,6 +4,8 @@ Eve corp discord bot notifier
 
 ## Dependencies
 
+- node v14+ 
+
 1. Install npx
 
     ```bash
@@ -14,7 +16,7 @@ Eve corp discord bot notifier
 
 _For Raspberry pi with Ubuntu:_
 
-1. Setup MongoDB
+1. [Setup MongoDB](https://developer.mongodb.com/how-to/mongodb-on-raspberry-pi/)
 
     ```bash
     # Install the MongoDB GPG key:
@@ -27,19 +29,11 @@ _For Raspberry pi with Ubuntu:_
     sudo apt-get update
 
     # Install MongoDB:
-    sudo apt-get install -y mongodb-org     
-    ```
+    sudo apt-get install -y mongodb-org
 
-_For Raspberry pi with Raspberian:_
-
-1. Setup MongoDB
-
-    ```bash
-    sudo apt update
-    sudo apt upgrade
-    sudo apt install mongodb
-    sudo systemctl enable mongodb
-    sudo systemctl start mongodb
+    sudo systemctl daemon-reload
+    sudo systemctl enable mongod
+    sudo systemctl start mongod
     ```
 
 ## How to setup
