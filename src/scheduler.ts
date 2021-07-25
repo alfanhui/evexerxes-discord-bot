@@ -6,7 +6,7 @@ import { syncCorpContacts } from './handlers/corpContractsHandler';
 import { DiscordNotifier } from './notifier/discordNotifier';
 import { AcceptedChannelMongo, DiscordQueries } from './daos/discordDAO';
 import { Corperation, getCorperationInfo } from './api/corperation/corperationAPI';
-import { getPublicCharacterInfo } from './api/characterAPI';
+import { CharacterPublic, getPublicCharacterInfo } from './api/characterAPI';
 
 export class Scheduler {
     scheduler = new ToadScheduler();
@@ -38,12 +38,13 @@ export class Scheduler {
             characters.forEach(async(character) => {
                 console.log('character:', character.characterName)
                 //TODO For each authorised method...
-                const corperationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-                var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
-                corperation.corperation_id = corperationId;
+                const corperationId: Promise<CharacterPublic> = (await getPublicCharacterInfo(this.esi, null, character.characterId)).json();
+                corperationId.then((corperation)=> console.log(corperation.name)).catch((e)=>console.error(e));
+                // var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
+                // corperation.corperation_id = corperationId;
 
-                //CorpContracts
-                syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+                // //CorpContracts
+                // syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
             });
         }catch(e){
             console.log(e)

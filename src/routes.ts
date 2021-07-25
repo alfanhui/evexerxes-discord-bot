@@ -96,7 +96,7 @@ export class Routes {
     }
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
-        const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
+        const corperationId: number = (await (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).json()).corporation_id;
         await ContractQueries.createIndex(this.provider,corperationId);
         await StructuresQueries.createIndex(this.provider,corperationId);
     }
