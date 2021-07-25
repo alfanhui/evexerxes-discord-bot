@@ -15,7 +15,7 @@ export interface Station {
     office_rental_cost:	number //office_rental_cost number
     owner: number //ID of the corporation that controls this station
     position: IPosition
-    race_id: number //race_id integer
+    race_id?: number //race_id integer
     reprocessing_efficiency: number //reprocessing_efficiency number
     reprocessing_stations_take:	number //reprocessing_stations_take number
     services: Array<string>

@@ -5,7 +5,7 @@ import ESI from 'eve-esi-client';
 import { syncCorpContacts } from './handlers/corpContractsHandler';
 import { DiscordNotifier } from './notifier/discordNotifier';
 import { AcceptedChannelMongo, DiscordQueries } from './daos/discordDAO';
-import { Corperation, getCorperationInfo } from './api/corperationAPI';
+import { Corperation, getCorperationInfo } from './api/corperation/corperationAPI';
 import { getPublicCharacterInfo } from './api/characterAPI';
 
 export class Scheduler {

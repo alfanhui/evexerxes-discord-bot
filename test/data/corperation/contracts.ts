@@ -1,6 +1,6 @@
-import { CorpContract, IStatus, IType } from "../../src/api/corpContractsAPI";
+import { Contract, IStatus, IType } from "../../../src/api/corperation/contractsAPI";
 
-export const corpContract_1: CorpContract = {
+export const corpContract1: Contract = {
     acceptor_id: null,
     assignee_id: null,
     availability: null,
@@ -25,7 +25,7 @@ export const corpContract_1: CorpContract = {
     volume: 5000
 }
 
-export const corpContract_2: CorpContract = {
+export const corpContract2: Contract = {
     acceptor_id: null,
     assignee_id: null,
     availability: null,
@@ -50,7 +50,7 @@ export const corpContract_2: CorpContract = {
     volume: 4000
 }
 
-export const corpContract_3_not_notifiable: CorpContract = {
+export const corpContract3_notNotifiable: Contract = {
     acceptor_id: null,
     assignee_id: null,
     availability: null,

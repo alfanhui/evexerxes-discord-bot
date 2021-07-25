@@ -1,9 +1,10 @@
-import { CorpContract, IStatus, IType } from './api/corpContractsAPI';
-import { ContractQueries } from './daos/contractDAO';
 import { UserQueries, CharacterMongo } from './daos/userDAO';
-import ESI from 'eve-esi-client';
+import ESI, { Account, Character, Provider, Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider'
 import Router from 'koa-router';
+import { StructuresQueries } from './daos/structuresDAO';
+import { getPublicCharacterInfo } from './api/characterAPI';
+import { ContractQueries } from './daos/contractDAO';
 
 export class Routes {
     router: any;
@@ -71,7 +72,12 @@ export class Routes {
 
     async getCallback(ctx: any) {
         const code = String(ctx.query.code);
-        await this.esi.register(code);
+        const newCharacter: {
+            account: Account,
+            character: Character,
+            token: Token
+         } = await this.esi.register(code);
+        this.setupDatabaseIndexes(newCharacter);
         ctx.res.statusCode = 302;
         ctx.res.setHeader('Location', `/login`);
     }
@@ -86,5 +92,11 @@ export class Routes {
         const characterId: number = ctx.params.characterId
         await this.provider.deleteCharacter(characterId);
         ctx.redirect("/login")
+    }
+
+    async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
+        const corperationId: number = (await getPublicCharacterInfo(this.esi['request'], null, newCharacter.character.characterId)).corporation_id;
+        await ContractQueries.createIndex(this.provider,corperationId);
+        await StructuresQueries.createIndex(this.provider,corperationId);
     }
 }

@@ -6,23 +6,53 @@ Eve corp discord bot notifier
 
 1. Install npx
 
-        ```bash
-        npm install --global npx
-        ```
+    ```bash
+    npm install --global npx
+    ```
 
 2. [Setup MongoDB](https://docs.mongodb.com/manual/administration/install-community/), create a database to be called `esi`, and make sure that it is accessible at [mongo://localhost/esi](mongo://localhost/esi). Currently tested with Mongo Community Edition V5.
 
-## How to setup
+_For Raspberry pi with Ubuntu:_
+
+1. Setup MongoDB
 
     ```bash
-    npm install
+    # Install the MongoDB GPG key:
+    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+
+    # Add the source location for the MongoDB packages:
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+
+    # Download the package details for the MongoDB packages:
+    sudo apt-get update
+
+    # Install MongoDB:
+    sudo apt-get install -y mongodb-org     
     ```
+
+_For Raspberry pi with Raspberian:_
+
+1. Setup MongoDB
+
+    ```bash
+    sudo apt update
+    sudo apt upgrade
+    sudo apt install mongodb
+    sudo systemctl enable mongodb
+    sudo systemctl start mongodb
+    ```
+
+## How to setup
+
+  ```bash
+  npm install
+  ```
 
 ## How to run
 
-    ```bash
-    npm start
-    ```
+  ```bash
+  npm start
+  ```
 
 ## How to add
 

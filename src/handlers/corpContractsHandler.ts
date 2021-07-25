@@ -1,12 +1,12 @@
 import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { CharacterPublic, getPublicCharacterInfo } from '../api/characterAPI';
-import { CorpContract, getCorpContracts, IType } from '../api/corpContractsAPI';
+import { Contract, getCorpContracts, IType } from '../api/corperation/contractsAPI';
 import { ContractQueries } from "../daos/contractDAO";
 import { blue, DiscordNotifier } from '../notifier/discordNotifier';
 import { MessageEmbed } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
-import { Corperation } from '../api/corperationAPI';
+import { Corperation } from '../api/corperation/corperationAPI';
 import { getCorperationIconURL, getProfilePictureURL, ICON_URLS } from '../data/images';
 import { getStationInfo, Station } from '../api/stationAPI';
 import { getRouteInfo } from '../api/routerAPI';
@@ -15,7 +15,7 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
     try {
         //Request update from Eve API
         const token: Token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
-        const contracts: CorpContract[] = await getCorpContracts(esi['request'], token, corperation.corperation_id);
+        const contracts: Contract[] = await getCorpContracts(esi['request'], token, corperation.corperation_id);
 
         //Remove any contacts that aren't in the original request.
         ContractQueries.removeOldContracts(provider, corperation.corperation_id, contracts);
@@ -36,7 +36,7 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
     }
 }
 
-async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract: CorpContract): Promise<MessageEmbed> {
+async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract: Contract): Promise<MessageEmbed> {
     const characterPublic: CharacterPublic = await getPublicCharacterInfo(esi['request'], null, contract.issuer_id);
     const embed = new MessageEmbed()
         .setTitle(`New ${contract.type.toString().toUpperCase()} Contract`)
