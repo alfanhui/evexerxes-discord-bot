@@ -2,10 +2,10 @@ import ESI, { Token } from 'eve-esi-client';
 
 export const getPublicCharacterInfo = async (request: ESI['request'], token: Token, characterId: number) => {
     return (await request<CharacterPublic>(
-        `/characters/${characterId}`,
+        `/characters/${characterId}/`,
         null,
         null,
-        { token }
+        null
     )).json();
 }
 
