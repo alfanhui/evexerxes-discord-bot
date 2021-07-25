@@ -11,7 +11,7 @@ import { getPublicCharacterInfo } from './api/characterAPI';
 export class Scheduler {
     scheduler = new ToadScheduler();
     job: SimpleIntervalJob;
-    INVERVAL = 30;
+    INVERVAL = 10;
     provider: MongoProvider;
     esi: ESI;
     discordNotifier: DiscordNotifier;
@@ -36,6 +36,7 @@ export class Scheduler {
             var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
             var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
             characters.forEach(async(character) => {
+                console.log('character:', character.characterName)
                 //TODO For each authorised method...
                 const corperationId: number = (await getPublicCharacterInfo(this.esi['request'], null, character.characterId)).corporation_id;
                 var corperation: Corperation = await getCorperationInfo(this.esi['request'], null, corperationId);
