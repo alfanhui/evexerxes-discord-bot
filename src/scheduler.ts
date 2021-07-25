@@ -38,8 +38,8 @@ export class Scheduler {
             characters.forEach(async(character) => {
                 console.log('character:', character.characterName)
                 //TODO For each authorised method...
-                const corperationId: number = (await getPublicCharacterInfo(this.esi['request'], null, character.characterId)).corporation_id;
-                var corperation: Corperation = await getCorperationInfo(this.esi['request'], null, corperationId);
+                const corperationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
                 corperation.corperation_id = corperationId;
 
                 //CorpContracts

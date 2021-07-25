@@ -1,8 +1,8 @@
 
 import ESI, { Token } from 'eve-esi-client';
 
-export const getCorperationInfo = async (request: ESI['request'], token: Token, corporationId: number) => {
-    return (await request<Corperation>(
+export const getCorperationInfo = async (esi: ESI, token: Token, corporationId: number) => {
+    return (await esi.request<Corperation>(
         `/corporations/${corporationId}/`,
         null,
         null,
