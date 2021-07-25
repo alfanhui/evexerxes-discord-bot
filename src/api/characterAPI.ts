@@ -7,7 +7,9 @@ export const getPublicCharacterInfo = async (request: ESI['request'], token: Tok
         null,
         null,
         null
-    )).json();
+    )).json().catch((e)=>
+        {console.log(e);});
+    
 }
 
 export interface CharacterPublic {

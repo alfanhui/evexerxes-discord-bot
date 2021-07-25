@@ -91,7 +91,8 @@ export class Routes {
     async deleteCharacter(ctx: any) {
         const characterId: number = ctx.params.characterId
         await this.provider.deleteCharacter(characterId);
-        ctx.redirect("/login")
+        ctx.res.statusCode = 302;
+        ctx.res.setHeader('Location',"/login");
     }
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
