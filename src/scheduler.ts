@@ -39,7 +39,7 @@ export class Scheduler {
                 console.log('character:', character.characterName)
                 //TODO For each authorised method...
                 const corperationId: Promise<CharacterPublic> = (await getPublicCharacterInfo(this.esi, null, character.characterId)).json();
-                corperationId.then((corperation)=> console.log(corperation.name)).catch((e)=>console.error(e));
+                corperationId.then((corperation)=> console.log(corperation.name)).catch((e)=>console.error("ERROR", e));
                 // var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
                 // corperation.corperation_id = corperationId;
 
