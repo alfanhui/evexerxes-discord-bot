@@ -6,7 +6,7 @@ export const getPublicCharacterInfo = async (esi: ESI, token: Token, characterId
         `/characters/${characterId}/`,
         null,
         null,
-        null
+        { }
     ).then((response)=> response.json()).catch((e)=>
     {console.log(e);}));
     
