@@ -49,6 +49,10 @@ export class ContractQueries {
         this.deleteContracts(provider, corperationId, oldContracts);
     }
 
+    static async deleteAll(provider: MongoProvider, corperationId: number) {
+        return await provider.connection.collection(corperationId.toString() + "_contracts").deleteMany({});
+    }
+
     static async deleteContract(provider: MongoProvider, corperationId: number, contract: Contract) {
         if (!contract || contract == undefined) return Promise.resolve();
         return await provider.connection.collection(corperationId.toString() + "_contracts").deleteOne({ "contract_id": contract.contract_id });
@@ -66,7 +70,9 @@ export class ContractQueries {
 
     static async isNotifiable(provider: MongoProvider, corperationId: number, contract: Contract) {
         const foundContract: boolean = await this.isPresent(provider, corperationId, contract);
-        if (foundContract || (contract.status != IStatus.in_progress && contract.status != IStatus.outstanding)) {
+        if ((contract.status.toString() !== IStatus[IStatus.in_progress] && contract.status.toString() !== IStatus[IStatus.outstanding])) {
+            return false;
+        }else if(foundContract){
             return false;
         }
         return true;

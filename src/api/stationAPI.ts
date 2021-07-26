@@ -1,7 +1,7 @@
 import ESI, { Token } from 'eve-esi-client';
 
-export const getStationInfo = async (request: ESI['request'], token: Token, stationId: number) => {
-    return (await request<Station>(
+export const getStationInfo = async (request: ESI, token: Token, stationId: number) => {
+    return (await request.request<Station>(
         `/universe/stations/${stationId}`,
         null,
         null,

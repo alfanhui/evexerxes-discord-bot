@@ -1,13 +1,12 @@
 import ESI, { Token } from 'eve-esi-client';
 
 export const getPublicCharacterInfo = async (esi: ESI, token: Token, characterId: number) => {
-    console.log(characterId);
-    return await esi.request<CharacterPublic>(
+    return (await esi.request<CharacterPublic>(
         `/characters/${characterId}/`,
         null,
         null,
         { token }
-    );
+    )).json();
 }
 
 export interface CharacterPublic {

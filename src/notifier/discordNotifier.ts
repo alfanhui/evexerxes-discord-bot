@@ -29,13 +29,13 @@ export class DiscordNotifier {
         console.debug("Discord has logged in.")
     }
 
-    postChannelsMsg(channels: Array<AcceptedChannelMongo>, embedMsg: MessageEmbed) {
-        for (var channel in channels) {
-            const channelObject = this.client.channels.cache.find(ch => ch.id === channel);
+    async postChannelsMsg(channels: Array<AcceptedChannelMongo>, embedMsg: MessageEmbed) {
+        channels.forEach(async (channel: AcceptedChannelMongo) =>{
+            const channelObject = this.client.channels.cache.find(ch => ch.id === channel.channelId);
             if (channelObject.isText()) {
-                (<TextChannel>channelObject).send(embedMsg)
+               await ( <TextChannel>channelObject).send(embedMsg);
             }
-        }
+        });
     }
 
     postPrivateMsg(userId: string, embedMsg: MessageEmbed) {
@@ -43,19 +43,18 @@ export class DiscordNotifier {
         user.send(embedMsg);
     }
 
-
     async onMessage(msg: Discord.Message): Promise<any> {
         try {
             // if (msg.content.startsWith('.')) {
             //     msg.reply(await this.compileEmbedMessage('12345', null));
             //     return null;
             // }
-            //Only react if message is a command
-            if (!msg.content[0].match(/^[!]+$/)) {
-                return null;
-            }
             //don't react to messages from itself
             if (msg.author.id === this.client.user.id) {
+                return null;
+            }
+            //Only react if message is a command
+            if (!msg.content[0].match(/^[!]+$/)) {
                 return null;
             }
             //setup and help
