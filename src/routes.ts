@@ -21,10 +21,17 @@ export class Routes {
         this.router.get('/callback', (ctx: any) => this.getCallback(ctx));
         this.router.get('/delete/account/:accountId', (ctx: any) => this.deleteAccount(ctx));
         this.router.get('/delete/character/:characterId', (ctx: any) => this.deleteCharacter(ctx));
+        this.router.get('/wipe', (ctx: any) => this.wipe(ctx));
     }
 
     getRouter() {
         return this.router;
+    }
+
+    async wipe(ctx: any) {
+        await ContractQueries.deleteAll(this.provider, 98176669);
+        console.log("collections wiped.")
+        ctx.body = "<h1>WIPED</h1>"
     }
 
     async getLogin(ctx: any) {
@@ -96,7 +103,7 @@ export class Routes {
     }
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
-        const corperationId: number = (await (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).json()).corporation_id;
+        const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
         await ContractQueries.createIndex(this.provider,corperationId);
         await StructuresQueries.createIndex(this.provider,corperationId);
     }
