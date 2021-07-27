@@ -61,12 +61,14 @@ export class Routes {
         ctx.body += `<hr><h2>New Login</h2><h3>Select Authorisations:</h3><form action='/login'  method='post' name='form1'>
             <input type="checkbox" id="auth1" name="read_blueprints" value="esi-corporations.read_blueprints.v1" checked="checked">
             <label for="auth1">esi-corporations.read_blueprints.v1</label><br>
-            <input type="checkbox" id="auth2" name="read_structures" value="esi-corporations.read_structures.v1" checked="checked">
+            <input type="checkbox" id="auth2" name="read_corp_structures" value="esi-corporations.read_structures.v1" checked="checked">
             <label for="auth2">esi-corporations.read_structures.v1</label><br>
             <input type="checkbox" id="auth3" name="read_customs_offices" value="esi-planets.read_customs_offices.v1" checked="checked">
             <label for="auth3">esi-planets.read_customs_offices.v1</label><br>
             <input type="checkbox" id="auth4" name="read_corporation_contracts" value="esi-contracts.read_corporation_contracts.v1" checked="checked">
             <label for="auth4">esi-contracts.read_corporation_contracts.v1</label><br>
+            <input type="checkbox" id="auth5" name="read_structures" value="esi-universe.read_structures.v1" checked="checked">
+            <label for="auth5">esi-universe.read_structures.v1</label><br>
             <input type="submit" value="Add new login">
             </form>`
     }

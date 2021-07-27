@@ -11,6 +11,7 @@ import { getCorperationIconURL, getProfilePictureURL, ICON_URLS } from '../data/
 import { getStationInfo, Station } from '../api/stationAPI';
 import { getRouteInfo } from '../api/routerAPI';
 import { abbreviateNumber } from '../utils/numbers';
+import { getStructureInfo, Structure } from '../api/structureAPI';
 
 const ContractType: {[key:string]: string} = {
     unknown: 'Unknown',
@@ -47,6 +48,13 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
 
 async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract: Contract): Promise<MessageEmbed> {
     const characterPublic: CharacterPublic = await getPublicCharacterInfo(esi, null, contract.issuer_id);
+    var structureStart: Structure = null;
+    var stationStart: Station = null;
+    if(contract.start_location_id > 1000000000000){
+        structureStart = (await getStructureInfo(esi, null, contract.start_location_id));
+    }else{
+        stationStart = (await getStationInfo(esi, null, contract.start_location_id));
+    }
     const embed = new MessageEmbed()
         .setAuthor(`${corperation.name}`, getCorperationIconURL(contract.assignee_id))
         .setTitle(`New ${ContractType[contract.type]} Contract`)
@@ -63,25 +71,33 @@ async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract:
         case IType[IType.auction]:
             embed.addFields(
                 { name: 'price:', value: `${abbreviateNumber(contract.price)} ISK`, inline: true },
+                { name: 'location:', value: `${stationStart ? stationStart.name : structureStart.name}` },
                 { name: 'buyout:', value: `${contract.buyout}` }
             )
             break;
         case IType[IType.courier]:
-            const stationStart: Station = (await getStationInfo(esi, null, contract.start_location_id));
-            const stationEnd: Station = (await getStationInfo(esi, null, contract.end_location_id));
-            const jumps: number = (await getRouteInfo(esi, null, stationStart.system_id, stationEnd.system_id)).length
+            var structureEnd: Structure = null;
+            var stationEnd: Station = null;
+            if(contract.end_location_id > 1000000000000){
+                structureEnd = (await getStructureInfo(esi, null, contract.start_location_id));
+            }else{
+                stationEnd = (await getStationInfo(esi, null, contract.start_location_id));
+            }
+            const jumps: number = (await getRouteInfo(esi, null, (stationStart)? stationStart.system_id : structureStart.solar_system_id, (stationEnd)? stationEnd.system_id : structureEnd.solar_system_id)).length
             embed.addFields(
                 { name: 'reward:', value: `${abbreviateNumber(contract.reward)} ISK`, inline: true},
-                { name: 'start location:', value: `${stationStart.name}` },
-                { name: 'end location:', value: `${stationEnd.name}` },
+                { name: 'start location:', value: `${stationStart ? stationStart.name : structureStart.name}` },
+                { name: 'end location:', value: `${stationEnd ? stationEnd.name : structureEnd.name}` },
                 { name: 'minimum jumps:', value: `${jumps}`, inline: true},
                 { name: 'collateral:', value: `${abbreviateNumber(contract.collateral)} ISK`, inline: true },
                 { name: 'days to complete:', value: `${contract.days_to_complete}`},
             )
             break;
         case IType[IType.item_exchange]:
+            const structure: Structure = (await getStructureInfo(esi, null, contract.start_location_id));    
             embed.addFields(
-                { name: 'price:', value: `${abbreviateNumber(contract.price)} ISK`, inline: true }
+                { name: 'price:', value: `${abbreviateNumber(contract.price)} ISK`, inline: true },
+                { name: 'location:', value: `${stationStart ? stationStart.name : structureStart.name}` },
             )
             break;
         default:
