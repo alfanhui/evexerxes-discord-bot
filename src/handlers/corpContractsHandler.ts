@@ -35,7 +35,7 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
             if (contract.assignee_id != corperation.corperation_id) continue;
             if (!await ContractQueries.isNotifiable(provider, corperation.corperation_id, contract)) continue;
             //Post to Discord any notifications
-            const message: MessageEmbed = await compileEmbedMessage(esi, corperation, contract);
+            const message: MessageEmbed = await compileEmbedMessage(esi, corperation, token, contract);
             discordNotifier.postChannelsMsg(channels, message);
             //Save new results
             ContractQueries.saveOrUpdateContract(provider, corperation.corperation_id, contract);
@@ -46,12 +46,12 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
     }
 }
 
-async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract: Contract): Promise<MessageEmbed> {
+async function compileEmbedMessage(esi: ESI, corperation: Corperation, token: Token, contract: Contract): Promise<MessageEmbed> {
     const characterPublic: CharacterPublic = await getPublicCharacterInfo(esi, null, contract.issuer_id);
     var structureStart: Structure = null;
     var stationStart: Station = null;
     if(contract.start_location_id > 1000000000000){
-        structureStart = (await getStructureInfo(esi, null, contract.start_location_id));
+        structureStart = (await getStructureInfo(esi, token, contract.start_location_id));
     }else{
         stationStart = (await getStationInfo(esi, null, contract.start_location_id));
     }
@@ -79,7 +79,7 @@ async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract:
             var structureEnd: Structure = null;
             var stationEnd: Station = null;
             if(contract.end_location_id > 1000000000000){
-                structureEnd = (await getStructureInfo(esi, null, contract.start_location_id));
+                structureEnd = (await getStructureInfo(esi, token, contract.start_location_id));
             }else{
                 stationEnd = (await getStationInfo(esi, null, contract.start_location_id));
             }
@@ -94,7 +94,7 @@ async function compileEmbedMessage(esi: ESI, corperation: Corperation, contract:
             )
             break;
         case IType[IType.item_exchange]:
-            const structure: Structure = (await getStructureInfo(esi, null, contract.start_location_id));    
+            const structure: Structure = (await getStructureInfo(esi, token, contract.start_location_id));    
             embed.addFields(
                 { name: 'price:', value: `${abbreviateNumber(contract.price)} ISK`, inline: true },
                 { name: 'location:', value: `${stationStart ? stationStart.name : structureStart.name}` },
