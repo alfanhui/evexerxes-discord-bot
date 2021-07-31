@@ -1,9 +1,9 @@
 import ESI from 'eve-esi-client';
 import { Token } from 'eve-esi-client';
-import { FuelNotify } from '../../daos/structuresDAO';
+import { FuelNotify } from '../../daos/corpStructuresDAO';
 
-export const getCorpStructures = async (request: ESI['request'], token: Token, corporationId: number) => {
-    return (await request<Structure[]>(
+export const getCorpStructures = async (esi: ESI, token: Token, corporationId: number) => {
+    return (await esi.request<CorpStructure[]>(
         `/corporations/${corporationId}/structures/`,
         null,
         null,
@@ -11,7 +11,7 @@ export const getCorpStructures = async (request: ESI['request'], token: Token, c
     )).json();
 }
 
-export interface Structure {
+export interface CorpStructure {
     _id?: string
     corporation_id: number //ID of the corporation that owns the structure
     fuel_expires?: string //Date on which the structure will run out of fuel

@@ -4,8 +4,11 @@ import { AcceptedChannelMongo, AdminUserMongo, DiscordQueries } from '../daos/di
 import { DISCORD_TOKEN } from '../secret';
 
 export const red: number = 0xff0000;
-export const blue: number = 0x0080FF;
+export const amber: number = 0xFF8000;
+export const yellow: number = 0xFFFE00;
 export const green: number = 0x00FF80;
+export const purple: number = 0x8000FF;
+export const blue: number = 0x0080FF;
 
 export class DiscordNotifier {
     client = new Discord.Client();

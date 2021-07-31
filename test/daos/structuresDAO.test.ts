@@ -1,7 +1,7 @@
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { cloneDeep } from 'lodash';
-import { Structure } from '../../src/api/corperation/structuresAPI';
-import { StructuresQueries } from '../../src/daos/structuresDAO';
+import { CorpStructure } from '../../src/api/corperation/structuresAPI';
+import { CorpStructuresQueries, FuelNotify } from '../../src/daos/corpStructuresDAO';
 import { corpStructure1, corpStructure2  } from '../data/corperation/structures';
 import { DBManager } from '../utils/db';
 
@@ -20,7 +20,7 @@ beforeAll(async () => {
     });
     //Dodgly await for provider to make a connection..
     await new Promise(resolve => setTimeout(resolve, 100));
-    await StructuresQueries.createIndex(provider, corperationId);
+    await CorpStructuresQueries.createIndex(provider, corperationId);
 });
 
 afterEach(async () => {
@@ -32,117 +32,180 @@ afterAll(async () => {
 });
 
 test('save a structure', async () => {
-    await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-    let isSaved: boolean = await StructuresQueries.isPresent(provider, corperationId, corpStructure1);
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+    let isSaved: boolean = await CorpStructuresQueries.isPresent(provider, corperationId, corpStructure1);
     expect(isSaved).toBe(true);
 });
 
 test('get structures, expecting nothing', async () => {
-    let corpStructures: Structure[] = await StructuresQueries.getStructures(provider, corperationId);
-    expect(corpStructures.length).toBe(0);
+    let structures: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corperationId);
+    expect(structures.length).toBe(0);
 });
 
 test('get structures, expecting 1', async () => {
-    await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-    let corpStructures: Structure[] = await StructuresQueries.getStructures(provider, corperationId);
-    expect(corpStructures.length).toBe(1);
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+    let structures: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corperationId);
+    expect(structures.length).toBe(1);
 });
 
 test('get structures, expecting 2', async () => {
-    await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-    await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure2);
-    let updatedCorpContract: Structure[] = await StructuresQueries.getStructures(provider, corperationId);
-    expect(updatedCorpContract.length).toBe(2);
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure2);
+    let structures: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corperationId);
+    expect(structures.length).toBe(2);
 });
 
 test('get structure, expecting structure object', async () => {
-    await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-    let foundCorpStructure: Structure = await StructuresQueries.getStructure(provider, corperationId, corpStructure1);
-    delete foundCorpStructure._id;
-    expect(foundCorpStructure).toStrictEqual(corpStructure1);
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+    let structure: CorpStructure = await CorpStructuresQueries.getStructure(provider, corperationId, corpStructure1);
+    delete structure._id;
+    expect(structure).toStrictEqual(corpStructure1);
 });
 
-// test('update an existing contract', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     const corpContract_1_1: Structure = cloneDeep(corpStructure1);
-//     corpContract_1_1.status = IStatus.finished;
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_1_1);
-//     let count: number = await provider.connection.collection(`${corperationId}_contracts`).find({}).count();
-//     expect(count).toBe(1);
-//     let isSaved: boolean = await StructuresQueries.isPresent(provider, corperationId, corpStructure1);
-//     expect(isSaved).toBe(true);
-//     let updatedCorpContract: CorpContract = (await StructuresQueries.getContracts(provider, corperationId))[0];
-//     expect(updatedCorpContract.status).toBe(IStatus.finished);
-// });
+test('update an existing structure', async () => {
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+    const corpStructure1_1: CorpStructure = cloneDeep(corpStructure1);
+    corpStructure1_1.fuel_expires = '2021-07-03 00:00:01';
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1_1);
+    let count: number = await provider.connection.collection(`${corperationId}_structures`).find({}).count();
+    expect(count).toBe(1);
+    let isSaved: boolean = await CorpStructuresQueries.isPresent(provider, corperationId, corpStructure1);
+    expect(isSaved).toBe(true);
+    let updatedStructure: CorpStructure = (await CorpStructuresQueries.getStructures(provider, corperationId))[0];
+    expect(updatedStructure.fuel_expires).toBe('2021-07-03 00:00:01');
+});
 
 // test('delete contract does nothing if provided with nothing', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     await StructuresQueries.deleteContract(provider, corperationId, null);
-//     let updatedCorpContract: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+//     await CorpStructuresQueries.deleteContract(provider, corperationId, null);
+//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(updatedCorpContract.length).toBe(1);
 // });
 
 // test('delete contract successfully deletes 1', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     await StructuresQueries.deleteContract(provider, corperationId, corpStructure1);
-//     let updatedCorpContract: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+//     await CorpStructuresQueries.deleteContract(provider, corperationId, corpStructure1);
+//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(updatedCorpContract.length).toBe(0);
 // });
 
 // test('delete multiple contracts does nothing if provided with nothing', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     await StructuresQueries.deleteContracts(provider, corperationId, null);
-//     let updatedCorpContract: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+//     await CorpStructuresQueries.deleteContracts(provider, corperationId, null);
+//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(updatedCorpContract.length).toBe(1);
 // });
 
 // test('delete multiple contracts successfully deletes multiple', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_2);
-//     await StructuresQueries.deleteContracts(provider, corperationId, [corpStructure1, corpContract_2]);
-//     let updatedCorpContract: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_2);
+//     await CorpStructuresQueries.deleteContracts(provider, corperationId, [corpStructure1, corpContract_2]);
+//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(updatedCorpContract.length).toBe(0);
 // });
 
-// test('isContractPresent false when given different contract', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     let isSaved: boolean = await StructuresQueries.isPresent(provider, corperationId, corpContract_2);
-//     expect(isSaved).toBe(false);
-// });
+test('getFuelNotifyStatus negative days prior on new structure gives empty warning', async () => {
+    jest
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() =>
+      new Date(2021, 6, 5).valueOf() //Empty
+    );
+
+    const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperationId, corpStructure1);
+    expect(fuelNotify).toBe(FuelNotify.EMPTY);
+});
+
+test('getFuelNotifyStatus 1 days prior on new structure gives 1 days warning', async () => {
+    jest
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() =>
+      new Date(2021, 5, 30, 12).valueOf() //Less than one days
+    );
+
+    const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperationId, corpStructure1);
+    expect(fuelNotify).toBe(FuelNotify.ONE_DAY);
+});
+
+test('getFuelNotifyStatus 3 days prior on new structure gives 3 days warning', async () => {
+    jest
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() =>
+      new Date(2021, 5, 29, 12).valueOf() //Less than three days
+    );
+
+    const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperationId, corpStructure1);
+    expect(fuelNotify).toBe(FuelNotify.THREE_DAY);
+});
+
+test('getFuelNotifyStatus 7 days prior on new structure gives 7 days warning', async () => {
+    jest
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() =>
+      new Date(2021, 5, 26).valueOf() //more than three days
+    );
+
+    const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperationId, corpStructure1);
+    expect(fuelNotify).toBe(FuelNotify.SEVEN_DAY);
+});
+
+test('getFuelNotifyStatus more than 7 days prior on new structure gives 7PLUS days warning', async () => {
+    jest
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() =>
+      new Date(2021, 4, 29, 12).valueOf() //more than seven days
+    );
+
+    const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperationId, corpStructure1);
+    expect(fuelNotify).toBe(FuelNotify.SEVEN_DAY_PLUS);
+});
+
+test('getFuelNotifyStatus 1 days prior on already notified structure gives NO_CHANGE', async () => {
+    
+    jest
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() =>
+      new Date(2021, 5, 30, 12).valueOf() //Less than one days
+    );
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+    const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperationId, corpStructure1);
+    expect(fuelNotify).toBe(FuelNotify.NO_CHANGE);
+});
+
+
 
 // test('isNotifiableContract true when given notifiable contract', async () => {
-//     let isSaved: boolean = await StructuresQueries.isPresent(provider, corperationId, corpStructure1);
+//     let isSaved: boolean = await CorpStructuresQueries.isPresent(provider, corperationId, corpStructure1);
 //     expect(isSaved).toBe(false);
-//     let isNotifiable: boolean = await StructuresQueries.isNotifiable(provider, corperationId, corpStructure1);
+//     let isNotifiable: boolean = await CorpStructuresQueries.isNotifiable(provider, corperationId, corpStructure1);
 //     expect(isNotifiable).toBe(true);
 // });
 
 // test('isNotifiableContract false when given invalid contract', async () => {
-//     let isNotifiable: boolean = await StructuresQueries.isNotifiable(provider, corperationId, corpContract_3_not_notifiable);
+//     let isNotifiable: boolean = await CorpStructuresQueries.isNotifiable(provider, corperationId, corpContract_3_not_notifiable);
 //     expect(isNotifiable).toBe(false);
 // });
 
 // test('removeOldContracts successfully removes corpStructure1 as it was old', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_2);
-//     let oldCorpContracts: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_2);
+//     let oldCorpContracts: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(oldCorpContracts.length).toBe(2);
 //     let newCorpContracts: Structure[] = [corpContract_2, corpContract_3_not_notifiable];
 //     //corpContract_3_not_notifiable will not be saved at this time.
-//     await StructuresQueries.removeOldContracts(provider, corperationId, newCorpContracts);
-//     let remainingCorpContracts: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.removeOldContracts(provider, corperationId, newCorpContracts);
+//     let remainingCorpContracts: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(remainingCorpContracts.length).toBe(1);
 //     expect(remainingCorpContracts.pop().contract_id).toBe(corpContract_2.contract_id);
 // });
 
 // test('removeOldContracts successfully does nothing with same contracts', async () => {
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
-//     await StructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_2);
-//     let oldCorpContracts: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpStructure1);
+//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corperationId, corpContract_2);
+//     let oldCorpContracts: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(oldCorpContracts.length).toBe(2);
 //     let newCorpContracts: Structure[] = [corpStructure1, corpContract_2];
 //     //corpContract_3_not_notifiable will not be saved at this time.
-//     await StructuresQueries.removeOldContracts(provider, corperationId, newCorpContracts);
-//     let remainingCorpContracts: Structure[] = await StructuresQueries.getContracts(provider, corperationId);
+//     await CorpStructuresQueries.removeOldContracts(provider, corperationId, newCorpContracts);
+//     let remainingCorpContracts: Structure[] = await CorpStructuresQueries.getContracts(provider, corperationId);
 //     expect(remainingCorpContracts.length).toBe(2);
 // });

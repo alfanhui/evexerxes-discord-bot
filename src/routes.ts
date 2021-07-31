@@ -2,7 +2,7 @@ import { UserQueries, CharacterMongo, AccountMongo } from './daos/userDAO';
 import ESI, { Account, Character, Provider, Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider'
 import Router from 'koa-router';
-import { StructuresQueries } from './daos/structuresDAO';
+import { CorpStructuresQueries } from './daos/corpStructuresDAO';
 import { getPublicCharacterInfo } from './api/characterAPI';
 import { ContractQueries } from './daos/contractDAO';
 
@@ -30,6 +30,7 @@ export class Routes {
 
     async wipe(ctx: any) {
         await ContractQueries.deleteAll(this.provider, 98176669);
+        await CorpStructuresQueries.deleteAll(this.provider, 98662212);
         console.log("collections wiped.")
         ctx.body = "<h1>WIPED</h1>"
     }
@@ -63,12 +64,14 @@ export class Routes {
             <label for="auth1">esi-corporations.read_blueprints.v1</label><br>
             <input type="checkbox" id="auth2" name="read_corp_structures" value="esi-corporations.read_structures.v1" checked="checked">
             <label for="auth2">esi-corporations.read_structures.v1</label><br>
-            <input type="checkbox" id="auth3" name="read_customs_offices" value="esi-planets.read_customs_offices.v1" checked="checked">
-            <label for="auth3">esi-planets.read_customs_offices.v1</label><br>
-            <input type="checkbox" id="auth4" name="read_corporation_contracts" value="esi-contracts.read_corporation_contracts.v1" checked="checked">
-            <label for="auth4">esi-contracts.read_corporation_contracts.v1</label><br>
-            <input type="checkbox" id="auth5" name="read_structures" value="esi-universe.read_structures.v1" checked="checked">
-            <label for="auth5">esi-universe.read_structures.v1</label><br>
+            <input type="checkbox" id="auth3" name="read_character_roles" value="esi-characters.read_corporation_roles.v1" checked="checked">
+            <label for="auth3"esi-characters.read_corporation_roles.v1</label><br>
+            <input type="checkbox" id="auth4" name="read_customs_offices" value="esi-planets.read_customs_offices.v1" checked="checked">
+            <label for="auth4">esi-planets.read_customs_offices.v1</label><br>
+            <input type="checkbox" id="auth5" name="read_corporation_contracts" value="esi-contracts.read_corporation_contracts.v1" checked="checked">
+            <label for="auth5">esi-contracts.read_corporation_contracts.v1</label><br>
+            <input type="checkbox" id="auth6" name="read_structures" value="esi-universe.read_structures.v1" checked="checked">
+            <label for="auth6">esi-universe.read_structures.v1</label><br>
             <input type="submit" value="Add new login">
             </form>`
     }
@@ -100,13 +103,12 @@ export class Routes {
     async deleteCharacter(ctx: any) {
         const characterId: number = ctx.params.characterId
         await this.provider.deleteCharacter(characterId);
-        ctx.res.statusCode = 302;
-        ctx.res.setHeader('Location',"/login");
+        ctx.redirect("/login")
     }
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
         const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
         await ContractQueries.createIndex(this.provider,corperationId);
-        await StructuresQueries.createIndex(this.provider,corperationId);
+        await CorpStructuresQueries.createIndex(this.provider,corperationId);
     }
 }

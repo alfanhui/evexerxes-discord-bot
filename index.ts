@@ -1,12 +1,11 @@
-import { Scheduler } from './src/scheduler';
 import Koa from 'koa';
 import { Routes } from './src/routes';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import ESI from 'eve-esi-client';
 import { EVE_CLIENT_ID, EVE_SECRET } from "./src/secret.js";
 import { DiscordNotifier } from './src/notifier/discordNotifier';
-import { ContractQueries } from './src/daos/contractDAO';
-import { StructuresQueries } from './src/daos/structuresDAO';
+import { SecondsScheduler } from './src/secondScheduler';
+import { HoursScheduler } from './src/hourScheduler';
 
 const CALLBACK_URI = 'https://www.garbagecollectorb.com/callback';
 
@@ -38,4 +37,5 @@ app.listen(PORT, function () {
 });
 
 const discordNotifer = new DiscordNotifier(provider);
-const scheduler = new Scheduler(provider, esi, discordNotifer);
+const secondsScheduler = new SecondsScheduler(provider, esi, discordNotifer);
+const hoursScheduler = new HoursScheduler(provider, esi, discordNotifer);
