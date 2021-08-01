@@ -89,7 +89,6 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
                 console.error(e);
             }
         }
-        console.log("syncWar complete")
     } catch (e) {
         console.error(e)
         return null;

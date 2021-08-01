@@ -3,9 +3,8 @@ import { Routes } from './src/routes';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import ESI from 'eve-esi-client';
 import { DiscordNotifier } from './src/notifier/discordNotifier';
-import { SecondsScheduler } from './src/scheduler/secondScheduler';
-import { HoursScheduler } from './src/scheduler/hourScheduler';
-import { DayScheduler } from './src/scheduler/dayScheduler';
+import { Cron } from './src/scheduler/cron';
+require('dotenv').config()
 
 const PORT = process.env.PORT;
 const provider = new MongoProvider('mongodb://localhost/esi', {
@@ -35,6 +34,4 @@ app.listen(PORT, function () {
 });
 
 const discordNotifer = new DiscordNotifier(provider);
-const secondsScheduler = new SecondsScheduler(provider, esi, discordNotifer);
-const hoursScheduler = new HoursScheduler(provider, esi, discordNotifer);
-const dayScheduler = new DayScheduler(provider, esi, discordNotifer);
+const cron = new Cron(provider, esi, discordNotifer);
