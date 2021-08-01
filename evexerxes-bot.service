@@ -1,13 +1,12 @@
 [Service]
 WorkingDirectory=/home/pi/evexerxes-discord-bot
-ExecStart=/usr/local/bin/npm run prod
+ExecStart=/usr/bin/npm run prod
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=evexerxes-discord-bot
 User=pi
 Group=pi
-Environment=NODE_ENV=production
 
 [Install]
 WantedBy=multi-user.target
