@@ -25,7 +25,7 @@ export class Cron {
         this.provider = provider;
         this.esi = esi;
         this.discordNotifier = discordNotifier;
-        this.contractJob = new CronJob('0 */5 * * * *', async () => {
+        this.contractJob = new CronJob(process.env.CONTRACT_CRON, async () => {
             try {
                 await this.contractScheduler();
             } catch (e) {
@@ -33,7 +33,7 @@ export class Cron {
             }
         });
 
-        this.fuelJob = new CronJob('0 0 */3 * * *', async () => {
+        this.fuelJob = new CronJob(process.env.FUEL_CRON, async () => {
             try {
                 await this.fuelScheduler();
             } catch (e) {
@@ -41,7 +41,7 @@ export class Cron {
             }
         });
 
-        this.warJob = new CronJob('0 0 */1 * * *', async () => {
+        this.warJob = new CronJob(process.env.WAR_CRON, async () => {
             try {
                 await this.warScheduler();
             } catch (e) {
