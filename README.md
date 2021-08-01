@@ -2,9 +2,9 @@
 
 Eve corp discord bot notifier
 
-## Dependencies
+## Dependencies and Setup
 
-- node v14+ 
+- node v14+
 
 1. Install npx
 
