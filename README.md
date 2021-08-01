@@ -114,6 +114,8 @@ debugging:
 ## Features
 
 * notify when corp contracts are created
+* notify when at war, changes to wars we're in
+* notify when stations are low on fuel
 
 ## ideas
 
@@ -127,5 +129,4 @@ debugging:
 * notify details on corperation industry jobs (? we can corp indy jobs?)
 * notify when high number of kills in specified systems
 * notify new station anchering in specified systems
-* notify when at war, changes to wars we're in
 * notify when structures are under attack
