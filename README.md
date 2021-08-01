@@ -50,6 +50,7 @@ Eve corp discord bot notifier
     EVE_CLIENT_ID=
     EVE_SECRET=
     DISCORD_TOKEN=
+    DISCORD_TEST_CHANNEL=
     DEBUG=
     CONTRACT_CRON=0 */5 * * * *
     FUEL_CRON=0 0 */3 * * *

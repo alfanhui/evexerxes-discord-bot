@@ -33,8 +33,10 @@ export class DiscordNotifier {
 
     async postChannelsMsg(channels: Array<AcceptedChannelMongo>, embedMsg: MessageEmbed) {
         for(const channel  of channels){
-            if(process.env.DEBUG){
-                if(channel.channelId != "868556265113137283") continue;
+            if(process.env?.DEBUG){
+                if(channel.channelId != process.env?.DISCORD_TEST_CHANNEL) continue;
+            }else{
+                if(channel.channelId == process.env?.DISCORD_TEST_CHANNEL) continue;
             }
             const channelObject = this.client.channels.cache.find(ch => ch.id === channel.channelId);
             if (channelObject.isText()) {
