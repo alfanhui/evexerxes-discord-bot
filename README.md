@@ -14,9 +14,7 @@ Eve corp discord bot notifier
 
 2. [Setup MongoDB](https://docs.mongodb.com/manual/administration/install-community/), create a database to be called `esi`, and make sure that it is accessible at [mongo://localhost/esi](mongo://localhost/esi). Currently tested with Mongo Community Edition V5.
 
-_For Raspberry pi with Ubuntu:_
-
-1. [Setup MongoDB](https://developer.mongodb.com/how-to/mongodb-on-raspberry-pi/)
+    [_For Raspberry pi with Ubuntu:_](https://developer.mongodb.com/how-to/mongodb-on-raspberry-pi/)
 
     ```bash
     # Install the MongoDB GPG key:
@@ -36,11 +34,27 @@ _For Raspberry pi with Ubuntu:_
     sudo systemctl start mongod
     ```
 
-## How to setup
+3. Install Node dependencies
 
-  ```bash
-  npm install
-  ```
+    ```bash
+    npm install
+    ```
+
+4. Create .env file at root:
+
+    `./.env`:
+
+    ```bash
+    PORT=8002
+    CALLBACK_URI=
+    EVE_CLIENT_ID=
+    EVE_SECRET=
+    DISCORD_TOKEN=
+    DEBUG=
+    CONTRACT_CRON=0 */5 * * * *
+    FUEL_CRON=0 0 */3 * * *
+    WAR_CRON=0 0 */1 * * *
+    ```
 
 ## How to run
 
