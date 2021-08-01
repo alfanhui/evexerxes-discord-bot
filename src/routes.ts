@@ -4,7 +4,10 @@ import MongoProvider from 'eve-esi-client-mongo-provider'
 import Router from 'koa-router';
 import { CorpStructuresQueries } from './daos/corpStructuresDAO';
 import { getPublicCharacterInfo } from './api/characterAPI';
-import { ContractQueries } from './daos/contractDAO';
+import { CorpContractQueries } from './daos/corpContractDAO';
+import { WarsQueries } from './daos/warsDAO';
+import { CorpWarsQueries } from './daos/corpWarsDAO';
+import { Corperation } from './api/corperation/corperationAPI';
 
 export class Routes {
     router: any;
@@ -29,8 +32,19 @@ export class Routes {
     }
 
     async wipe(ctx: any) {
-        await ContractQueries.deleteAll(this.provider, 98176669);
-        await CorpStructuresQueries.deleteAll(this.provider, 98662212);
+        try{
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async(character) => {
+                //TODO For each authorised method...
+                const corperationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                await CorpContractQueries.deleteAll(this.provider, corperationId);
+                await CorpStructuresQueries.deleteAll(this.provider, corperationId);
+                await CorpWarsQueries.deleteAll(this.provider, corperationId);
+            });
+            await WarsQueries.deleteAll(this.provider);
+        }catch(e){
+            console.error(e);
+        }
         console.log("collections wiped.")
         ctx.body = "<h1>WIPED</h1>"
     }
@@ -108,7 +122,8 @@ export class Routes {
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
         const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
-        await ContractQueries.createIndex(this.provider,corperationId);
+        await CorpContractQueries.createIndex(this.provider,corperationId);
         await CorpStructuresQueries.createIndex(this.provider,corperationId);
+        await WarsQueries.createIndex(this.provider);
     }
 }

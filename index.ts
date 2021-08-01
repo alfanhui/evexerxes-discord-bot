@@ -4,8 +4,9 @@ import MongoProvider from 'eve-esi-client-mongo-provider';
 import ESI from 'eve-esi-client';
 import { EVE_CLIENT_ID, EVE_SECRET } from "./src/secret.js";
 import { DiscordNotifier } from './src/notifier/discordNotifier';
-import { SecondsScheduler } from './src/secondScheduler';
-import { HoursScheduler } from './src/hourScheduler';
+import { SecondsScheduler } from './src/scheduler/secondScheduler';
+import { HoursScheduler } from './src/scheduler/hourScheduler';
+import { DayScheduler } from './src/scheduler/dayScheduler';
 
 const CALLBACK_URI = 'https://www.garbagecollectorb.com/callback';
 
@@ -39,3 +40,4 @@ app.listen(PORT, function () {
 const discordNotifer = new DiscordNotifier(provider);
 const secondsScheduler = new SecondsScheduler(provider, esi, discordNotifer);
 const hoursScheduler = new HoursScheduler(provider, esi, discordNotifer);
+const dayScheduler = new DayScheduler(provider, esi, discordNotifer);

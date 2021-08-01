@@ -10,6 +10,10 @@ export function getCorperationIconURL(corperationId: number){
     return `https://image.eveonline.com/Corporation/${corperationId}_128.png`;
 }
 
+export function getAllianceIconURL(allianceId: number){
+    return `https://images.evetech.net/alliances/${allianceId}/logo`
+}
+
 export function getProfilePictureURL(characterId: number){
     return `https://images.evetech.net/characters/${characterId}/portrait?size=128`;
 }
