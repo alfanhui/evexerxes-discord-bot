@@ -5,6 +5,8 @@ Eve corp discord bot notifier
 ## Dependencies and Setup
 
 - node v14+
+- EVE Online Developer ClientID and ClientSecret
+- Discord Developer Token
 
 1. Install npx
 
@@ -40,7 +42,7 @@ Eve corp discord bot notifier
     npm install
     ```
 
-4. Create .env file at root:
+4. Create .env file at root directory and fill out the details:
 
     `./.env`:
 
@@ -52,24 +54,62 @@ Eve corp discord bot notifier
     DISCORD_TOKEN=
     DISCORD_TEST_CHANNEL=
     DEBUG=
-    CONTRACT_CRON=0 */5 * * * *
-    FUEL_CRON=0 0 */3 * * *
-    WAR_CRON=0 0 */1 * * *
+    CONTRACT_CRON=0 */5 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+    FUEL_CRON=0 0 10,13,16,19,22 * * *
+    WAR_CRON=0 0 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
     ```
 
 ## How to run
 
-  ```bash
-  npm start
-  ```
+1. Run the service:
 
-## How to add
+    ```bash
+    npm run start #development
+    #or
+    npm run prod #production
+    ```
 
-[https://discord.com/oauth2/authorize?&client_id=000000000000000000&scope=bot&permissions=8](https://discord.com/oauth2/authorize?&client_id=000000000000000000&scope=bot&permissions=8)
+2. [Login to your Eve accounts](localhost:8002/login)
+
+3. Link Bot to discord server: [https://discord.com/oauth2/authorize?&client_id=000000000000000000&scope=bot&permissions=8](https://discord.com/oauth2/authorize?&client_id=000000000000000000&scope=bot&permissions=8)
+
+4. Link Channel to evexerxes-bot:
+
+    Type: `!evexerxes-init`
+    Into the discord channel you want the notifications to come from.
+
+## How to enable as Service
+
+1. Copy service to systemd:
+
+    `sudo cp evexerxes-bot.service /etc/systemd/system/`
+2. Reload systemd daemon:
+
+    `sudo systemctl daemon-reload`
+3. Enable (run on boot) evexerxes-bot service:
+
+    `sudo systemctl enable evexerxes-bot.service`
+
+4. Start evexerxes-bot service:
+
+    `sudo systemctl start evexerxes-bot.service`
 
 ## Icons
 
 [https://wiki.eveuniversity.org/UniWiki:Icons](https://wiki.eveuniversity.org/UniWiki:Icons)
+
+## Endpoints
+
+- [localhost:8002/login](localhost:8002/login): To authenticate with EVE to use EVE Online API
+- [localhost:8002/callback](localhost:8002/callback) Callback URL to retrieve token from EVE Online
+- [localhost:8002/wipe](localhost:8002/wipe) Debug to wipe all documents in DB
+- [localhost:8002/wipe/stations](localhost:8002/wipe/stations) Debug to wipe just stations (Structure test)
+
+## Support
+
+debugging:
+
+- `journalctl -fu evexerxes-bot.service`
 
 ## Features
 
