@@ -145,5 +145,6 @@ export class Routes {
         const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
         await CorpContractQueries.createIndex(this.provider,corperationId);
         await CorpStructuresQueries.createIndex(this.provider,corperationId);
+        await CorpWarsQueries.createIndex(this.provider, corperationId);
     }
 }
