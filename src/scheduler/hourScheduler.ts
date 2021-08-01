@@ -1,13 +1,13 @@
-import { CharacterMongo, UserQueries } from './daos/userDAO';
+import { CharacterMongo, UserQueries } from '../daos/userDAO';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 import ESI, { Token } from 'eve-esi-client';
-import { DiscordNotifier } from './notifier/discordNotifier';
-import { AcceptedChannelMongo, DiscordQueries } from './daos/discordDAO';
-import { Corperation, getCorperationInfo } from './api/corperation/corperationAPI';
-import { getPublicCharacterInfo } from './api/characterAPI';
-import { syncFuel } from './handlers/fuelHandler';
-import { getCharacterRoles, Roles } from './api/rolesAPI';
+import { DiscordNotifier } from '../notifier/discordNotifier';
+import { AcceptedChannelMongo, DiscordQueries } from '../daos/discordDAO';
+import { Corperation, getCorperationInfo } from '../api/corperation/corperationAPI';
+import { getPublicCharacterInfo } from '../api/characterAPI';
+import { syncFuel } from '../handlers/fuelHandler';
+import { getCharacterRoles, Roles } from '../api/rolesAPI';
 
 export class HoursScheduler {
     scheduler = new ToadScheduler();
@@ -28,7 +28,7 @@ export class HoursScheduler {
         )
         this.job = new SimpleIntervalJob({ seconds: this.INVERVAL, }, task)
         this.scheduler.addSimpleIntervalJob(this.job)
-        console.debug(`Scheduler created, interval: ${this.INVERVAL}`)
+        console.debug(`Hour Scheduler created, interval: ${this.INVERVAL}`)
     }
 
     async task() {
@@ -45,7 +45,7 @@ export class HoursScheduler {
                 //CorpStructures // only directors
                 const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
                 var roles = (await getCharacterRoles(this.esi, token, character.characterId));
-                if(roles.roles.find((role) => role.toString() == Roles[Roles.Director])){
+                if(roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])){
                     syncFuel(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
                 }
             });

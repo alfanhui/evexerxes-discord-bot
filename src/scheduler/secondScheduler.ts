@@ -1,18 +1,18 @@
-import { CharacterMongo, UserQueries } from './daos/userDAO';
+import { CharacterMongo, UserQueries } from '../daos/userDAO';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 import ESI from 'eve-esi-client';
-import { syncCorpContacts } from './handlers/corpContractsHandler';
-import { DiscordNotifier } from './notifier/discordNotifier';
-import { AcceptedChannelMongo, DiscordQueries } from './daos/discordDAO';
-import { Corperation, getCorperationInfo } from './api/corperation/corperationAPI';
-import { getPublicCharacterInfo } from './api/characterAPI';
+import { syncCorpContacts } from '../handlers/corpContractsHandler';
+import { DiscordNotifier } from '../notifier/discordNotifier';
+import { AcceptedChannelMongo, DiscordQueries } from '../daos/discordDAO';
+import { Corperation, getCorperationInfo } from '../api/corperation/corperationAPI';
+import { getPublicCharacterInfo } from '../api/characterAPI';
 
 
 export class SecondsScheduler {
     scheduler = new ToadScheduler();
     job: SimpleIntervalJob;
-    INVERVAL = 10;
+    INVERVAL = 300;
     provider: MongoProvider;
     esi: ESI;
     discordNotifier: DiscordNotifier;
@@ -28,7 +28,7 @@ export class SecondsScheduler {
         )
         this.job = new SimpleIntervalJob({ seconds: this.INVERVAL, }, task)
         this.scheduler.addSimpleIntervalJob(this.job)
-        console.debug(`Scheduler created, interval: ${this.INVERVAL}`)
+        console.debug(`Second Scheduler created, interval: ${this.INVERVAL}`)
     }
 
     async task() {

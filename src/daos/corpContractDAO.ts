@@ -4,7 +4,7 @@ import { Contract, IStatus } from '../api/corperation/contractsAPI';
 const indexKey: string = "contract_id";
 const index:{[key: string]: number} = {"contract_id": 1};
 
-export class ContractQueries {
+export class CorpContractQueries {
 
     static async createCollection(provider: MongoProvider, corperationId: number){
         return provider.connection.db.createCollection(`${corperationId}_contracts`);

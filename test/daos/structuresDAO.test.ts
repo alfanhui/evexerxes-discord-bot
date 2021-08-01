@@ -171,6 +171,30 @@ test('getFuelNotifyStatus 1 days prior on already notified structure gives NO_CH
     expect(fuelNotify).toBe(FuelNotify.NO_CHANGE);
 });
 
+interface Test {
+    a?: string
+    b?: string
+}
+
+test('test', ()=>{
+    var objectA: Test = {"a": "a"};
+    var objectB: Test = {"b": "a"};
+    if(objectA?.a == objectB?.a){
+        fail();
+    }
+    if(objectA?.b == objectB?.b){
+        fail();
+    }
+    if(objectA?.a == objectB?.b){
+        expect(objectA.a).toBe(objectB.b);
+    }else{
+        fail();
+    }
+})
+
+function fail(){
+    expect(true).toBe(false);
+}
 
 
 // test('isNotifiableContract true when given notifiable contract', async () => {
