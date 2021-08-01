@@ -7,7 +7,6 @@ import { getPublicCharacterInfo } from './api/characterAPI';
 import { CorpContractQueries } from './daos/corpContractDAO';
 import { WarsQueries } from './daos/warsDAO';
 import { CorpWarsQueries } from './daos/corpWarsDAO';
-import { Corperation } from './api/corperation/corperationAPI';
 
 export class Routes {
     router: any;
@@ -25,6 +24,7 @@ export class Routes {
         this.router.get('/delete/account/:accountId', (ctx: any) => this.deleteAccount(ctx));
         this.router.get('/delete/character/:characterId', (ctx: any) => this.deleteCharacter(ctx));
         this.router.get('/wipe', (ctx: any) => this.wipe(ctx));
+        this.router.get('/wipe/stations', (ctx: any) => this.wipeStations(ctx));
     }
 
     getRouter() {
@@ -47,6 +47,21 @@ export class Routes {
         }
         console.log("collections wiped.")
         ctx.body = "<h1>WIPED</h1>"
+    }
+
+    async wipeStations(ctx: any){
+        try{
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async(character) => {
+                //TODO For each authorised method...
+                const corperationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                await CorpStructuresQueries.deleteAll(this.provider, corperationId);
+            });
+        }catch(e){
+            console.error(e);
+        }
+        console.log("station collections wiped.")
+        ctx.body = "<h1>STATIONS WIPED</h1>"
     }
 
     async getLogin(ctx: any) {
@@ -74,16 +89,22 @@ export class Routes {
             ctx.body += "</table>"
         }
         ctx.body += `<hr><h2>New Login</h2><h3>Select Authorisations:</h3><form action='/login'  method='post' name='form1'>
+            
             <input type="checkbox" id="auth1" name="read_blueprints" value="esi-corporations.read_blueprints.v1" checked="checked">
             <label for="auth1">esi-corporations.read_blueprints.v1</label><br>
+        
             <input type="checkbox" id="auth2" name="read_corp_structures" value="esi-corporations.read_structures.v1" checked="checked">
             <label for="auth2">esi-corporations.read_structures.v1</label><br>
+        
             <input type="checkbox" id="auth3" name="read_character_roles" value="esi-characters.read_corporation_roles.v1" checked="checked">
-            <label for="auth3"esi-characters.read_corporation_roles.v1</label><br>
+            <label for="auth3">esi-characters.read_corporation_roles.v1</label><br>
+        
             <input type="checkbox" id="auth4" name="read_customs_offices" value="esi-planets.read_customs_offices.v1" checked="checked">
             <label for="auth4">esi-planets.read_customs_offices.v1</label><br>
+        
             <input type="checkbox" id="auth5" name="read_corporation_contracts" value="esi-contracts.read_corporation_contracts.v1" checked="checked">
             <label for="auth5">esi-contracts.read_corporation_contracts.v1</label><br>
+        
             <input type="checkbox" id="auth6" name="read_structures" value="esi-universe.read_structures.v1" checked="checked">
             <label for="auth6">esi-universe.read_structures.v1</label><br>
             <input type="submit" value="Add new login">
@@ -124,6 +145,5 @@ export class Routes {
         const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
         await CorpContractQueries.createIndex(this.provider,corperationId);
         await CorpStructuresQueries.createIndex(this.provider,corperationId);
-        await WarsQueries.createIndex(this.provider);
     }
 }

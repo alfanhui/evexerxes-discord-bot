@@ -12,7 +12,7 @@ import { getCharacterRoles, Roles } from '../api/rolesAPI';
 export class HoursScheduler {
     scheduler = new ToadScheduler();
     job: SimpleIntervalJob;
-    INVERVAL = 1800; //every half an hour
+    INVERVAL = 1800; //every 3 hours
     provider: MongoProvider;
     esi: ESI;
     discordNotifier: DiscordNotifier;
@@ -46,7 +46,7 @@ export class HoursScheduler {
                 const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
                 var roles = (await getCharacterRoles(this.esi, token, character.characterId));
                 if(roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])){
-                    syncFuel(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+                    await syncFuel(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
                 }
             });
         }catch(e){

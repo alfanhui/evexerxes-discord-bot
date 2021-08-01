@@ -1,7 +1,6 @@
 import Discord, { MessageEmbed, TextChannel } from 'discord.js';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { AcceptedChannelMongo, AdminUserMongo, DiscordQueries } from '../daos/discordDAO';
-import { DISCORD_TOKEN } from '../secret';
 
 export const red: number = 0xff0000;
 export const amber: number = 0xFF8000;
@@ -28,17 +27,20 @@ export class DiscordNotifier {
         });
 
         this.client.on('message', async (msg) => this.onMessage(msg));
-        this.client.login(DISCORD_TOKEN);
+        this.client.login(process.env.DISCORD_TOKEN);
         console.debug("Discord has logged in.")
     }
 
     async postChannelsMsg(channels: Array<AcceptedChannelMongo>, embedMsg: MessageEmbed) {
-        channels.forEach(async (channel: AcceptedChannelMongo) =>{
+        for(const channel  of channels){
+            if(process.env.DEBUG){
+                if(channel.channelId != "868556265113137283") continue;
+            }
             const channelObject = this.client.channels.cache.find(ch => ch.id === channel.channelId);
             if (channelObject.isText()) {
                await ( <TextChannel>channelObject).send(embedMsg);
             }
-        });
+        }
     }
 
     postPrivateMsg(userId: string, embedMsg: MessageEmbed) {
@@ -56,10 +58,9 @@ export class DiscordNotifier {
             if (msg.author.id === this.client.user.id) {
                 return null;
             }
+            if(!msg.content) return null;
             //Only react if message is a command
-            if (!msg.content[0].match(/^[!]+$/)) {
-                return null;
-            }
+            if (!msg.content[0].match(/^[!]+$/)) return null;
             //setup and help
             switch (msg.content) {
                 case '!evexerxes-init':

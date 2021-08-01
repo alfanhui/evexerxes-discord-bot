@@ -43,7 +43,7 @@ export class SecondsScheduler {
                 corperation.corperation_id = corperationId;
 
                 //CorpContracts
-                syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+                await syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
             });
         }catch(e){
             console.log(e)

@@ -11,7 +11,7 @@ import { syncWar } from '../handlers/warHandler';
 export class DayScheduler {
     scheduler = new ToadScheduler();
     job: SimpleIntervalJob;
-    INVERVAL = 3600; //every half a day
+    INVERVAL = 3600; //every hour
     provider: MongoProvider;
     esi: ESI;
     discordNotifier: DiscordNotifier;
@@ -42,7 +42,7 @@ export class DayScheduler {
                 corperation.corperation_id = corperationId;
                 corperationsInOrder.push(corperation);
             };
-            syncWar(this.provider, this.esi, this.discordNotifier, channels, characters, corperationsInOrder);
+            await syncWar(this.provider, this.esi, this.discordNotifier, channels, characters, corperationsInOrder);
         }catch(e){
             console.log(e)
         }

@@ -2,15 +2,12 @@ import Koa from 'koa';
 import { Routes } from './src/routes';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import ESI from 'eve-esi-client';
-import { EVE_CLIENT_ID, EVE_SECRET } from "./src/secret.js";
 import { DiscordNotifier } from './src/notifier/discordNotifier';
 import { SecondsScheduler } from './src/scheduler/secondScheduler';
 import { HoursScheduler } from './src/scheduler/hourScheduler';
 import { DayScheduler } from './src/scheduler/dayScheduler';
 
-const CALLBACK_URI = 'https://www.garbagecollectorb.com/callback';
-
-const PORT = 8002;
+const PORT = process.env.PORT;
 const provider = new MongoProvider('mongodb://localhost/esi', {
     connectionOptions: {
         useCreateIndex: true,
@@ -20,9 +17,9 @@ const provider = new MongoProvider('mongodb://localhost/esi', {
 });
 const esi = new ESI({
     provider: provider,
-    clientId: EVE_CLIENT_ID,
-    secretKey: EVE_SECRET,
-    callbackUri: CALLBACK_URI
+    clientId: process.env.EVE_CLIENT_ID,
+    secretKey: process.env.EVE_SECRET,
+    callbackUri: process.env.CALLBACK_URI
 });
 const routes = new Routes(provider, esi);
 const app = new Koa();

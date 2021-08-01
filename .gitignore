@@ -105,3 +105,6 @@ dist
 
 # secret files
 *secret*
+
+
+.env*
