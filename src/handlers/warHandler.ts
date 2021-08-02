@@ -38,30 +38,36 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
         const newWars = await WarsQueries.getAllNotSavedYet(provider, wars);
 
         for (const newWar of newWars) {
-            // Get New War details
-            const warDetail = await getWar(esi, token, newWar);
-            // Save New War details
-            await WarsQueries.saveOrUpdateWar(provider, warDetail);
-
-            // Cycle characters
-            for (let corperation of corperationsInOrder) {
-                try {
-                    // Move on if character isn't war eligible.
-                    if (!corperation.war_eligible) continue;
-                    // Check if involed
-                    if (isInvolvedInWar(warDetail, corperation)) {
-                        //Check if we knew about it
-                        if (! await CorpWarsQueries.isPresent(provider, corperation.corperation_id, warDetail)) {
-                            //NEW WAR! Notify Discord
-                            const warType: WAR_MESSAGE_TYPE = warDetail.finished ? WAR_MESSAGE_TYPE.FINISHED : WAR_MESSAGE_TYPE.NEW;
-                            const message: MessageEmbed = await compileEmbedMessage(provider, esi, corperation, token, warDetail, warType);
-                            discordNotifier.postChannelsMsg(channels, message);
+            try{
+                //Slow down pace in attempt to stop gateway errors
+                await new Promise(resolve => setTimeout(resolve, 30));
+                // Get New War details
+                const warDetail = await getWar(esi, token, newWar);
+                // Save New War details
+                await WarsQueries.saveOrUpdateWar(provider, warDetail);
+                
+                // Cycle characters
+                for (let corperation of corperationsInOrder) {
+                    try {
+                        // Move on if character isn't war eligible.
+                        if (!corperation.war_eligible) continue;
+                        // Check if involed
+                        if (isInvolvedInWar(warDetail, corperation)) {
+                            //Check if we knew about it
+                            if (! await CorpWarsQueries.isPresent(provider, corperation.corperation_id, warDetail)) {
+                                //NEW WAR! Notify Discord
+                                const warType: WAR_MESSAGE_TYPE = warDetail.finished ? WAR_MESSAGE_TYPE.FINISHED : WAR_MESSAGE_TYPE.NEW;
+                                const message: MessageEmbed = await compileEmbedMessage(provider, esi, corperation, token, warDetail, warType);
+                                discordNotifier.postChannelsMsg(channels, message);
+                            }
+                            await CorpWarsQueries.saveOrUpdateWar(provider, corperation.corperation_id, warDetail)
                         }
-                        await CorpWarsQueries.saveOrUpdateWar(provider, corperation.corperation_id, warDetail)
+                    } catch (e) {
+                        console.error(`warDetail ${corperation.corperation_id}`,e);
                     }
-                } catch (e) {
-                    console.error(e);
                 }
+            }catch(e){
+                console.error(`warDetail ${newWar}`, e);
             }
         }
 
@@ -86,11 +92,11 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
                     }
                 }
             } catch (e) {
-                console.error(e);
+                console.error(`existing war checks ${corperation.corperation_id}`,e);
             }
         }
     } catch (e) {
-        console.error(e)
+        console.error("syncWar", e)
         return null;
     }
 }
