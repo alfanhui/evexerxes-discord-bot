@@ -33,7 +33,6 @@ export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifie
         console.error(e)
         return null;
     }
-    console.log("fuelWar complete")
 }
 
 async function compileEmbedMessage(esi: ESI, corperation: Corperation, token: Token, corpStructure: CorpStructure, currentFuelStatus: FuelNotify): Promise<MessageEmbed> {
