@@ -1,13 +1,13 @@
 import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { CharacterPublic, getPublicCharacterInfo } from '../api/characterAPI';
-import { Contract, getCorpContracts, IType } from '../api/corperation/contractsAPI';
+import { Contract, getCorpContracts, IType } from '../api/corporation/contractsAPI';
 import { CorpContractQueries } from "../daos/corpContractDAO";
 import { blue, DiscordNotifier } from '../notifier/discordNotifier';
 import { MessageEmbed } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
-import { Corperation } from '../api/corperation/corperationAPI';
-import { getCorperationIconURL, getProfilePictureURL, ICON_URLS } from '../data/images';
+import { Corporation } from '../api/corporation/corporationAPI';
+import { getCorporationIconURL, getProfilePictureURL, ICON_URLS } from '../data/images';
 import { getStationInfo, Station } from '../api/stationAPI';
 import { getRouteInfo } from '../api/routerAPI';
 import { abbreviateNumber } from '../utils/numbers';
@@ -21,24 +21,24 @@ const ContractType: {[key:string]: string} = {
     loan: 'Loan'
 }
 
-export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characterId: number, corperation: Corperation): Promise<void> {
+export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characterId: number, corporation: Corporation): Promise<void> {
     try {
         //Request update from Eve API
         const token: Token = await provider.getToken(characterId, 'esi-contracts.read_corporation_contracts.v1')
-        const contracts: Array<Contract> = await getCorpContracts(esi, token, corperation.corperation_id);
+        const contracts: Array<Contract> = await getCorpContracts(esi, token, corporation.corporation_id);
 
         //Remove any contacts that aren't in the original request.
-        CorpContractQueries.removeOldContracts(provider, corperation.corperation_id, contracts);
+        CorpContractQueries.removeOldContracts(provider, corporation.corporation_id, contracts);
 
         for (const contract of contracts) {
             //Compare results with existing
-            if (contract.assignee_id != corperation.corperation_id) continue;
-            if (!await CorpContractQueries.isNotifiable(provider, corperation.corperation_id, contract)) continue;
+            if (contract.assignee_id != corporation.corporation_id) continue;
+            if (!await CorpContractQueries.isNotifiable(provider, corporation.corporation_id, contract)) continue;
             //Post to Discord any notifications
-            const message: MessageEmbed = await compileEmbedMessage(esi, corperation, token, contract);
+            const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, contract);
             discordNotifier.postChannelsMsg(channels, message);
             //Save new results
-            CorpContractQueries.saveOrUpdateContract(provider, corperation.corperation_id, contract);
+            CorpContractQueries.saveOrUpdateContract(provider, corporation.corporation_id, contract);
         }
     } catch (e) {
         console.error(e)
@@ -46,7 +46,7 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
     }
 }
 
-async function compileEmbedMessage(esi: ESI, corperation: Corperation, token: Token, contract: Contract): Promise<MessageEmbed> {
+async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: Token, contract: Contract): Promise<MessageEmbed> {
     const characterPublic: CharacterPublic = await getPublicCharacterInfo(esi, null, contract.issuer_id);
     var structureStart: Structure = null;
     var stationStart: Station = null;
@@ -56,7 +56,7 @@ async function compileEmbedMessage(esi: ESI, corperation: Corperation, token: To
         stationStart = (await getStationInfo(esi, null, contract.start_location_id));
     }
     const embed = new MessageEmbed()
-        .setAuthor(`${corperation.name}`, getCorperationIconURL(contract.assignee_id))
+        .setAuthor(`${corporation.name}`, getCorporationIconURL(contract.assignee_id))
         .setTitle(`New ${ContractType[contract.type]} Contract`)
         .setColor(blue)
         .setThumbnail(`${ICON_URLS[`contract_${contract.type}`]}`)

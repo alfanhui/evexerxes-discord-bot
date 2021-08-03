@@ -1,8 +1,8 @@
 
 import ESI, { Token } from 'eve-esi-client';
 
-export const getCorperationInfo = async (esi: ESI, token: Token, corporationId: number) => {
-    return (await esi.request<Corperation>(
+export const getCorporationInfo = async (esi: ESI, token: Token, corporationId: number) => {
+    return (await esi.request<Corporation>(
         `/corporations/${corporationId}/`,
         null,
         null,
@@ -10,8 +10,8 @@ export const getCorperationInfo = async (esi: ESI, token: Token, corporationId: 
     )).json();
 }
 
-export interface Corperation {
-    corperation_id?: number //sue me
+export interface Corporation {
+    corporation_id?: number //sue me
     alliance_id?: number //ID of the alliance that corporation is a member of, if any
     ceo_id: number //ceo_id integer
     creator_id: number //creator_id integer

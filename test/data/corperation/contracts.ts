@@ -1,4 +1,4 @@
-import { Contract } from "../../../src/api/corperation/contractsAPI";
+import { Contract } from "../../../src/api/corporation/contractsAPI";
 
 export const corpContract1 = <Contract>JSON.parse('{ \
     "acceptor_id": null, \

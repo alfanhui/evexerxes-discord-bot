@@ -2,8 +2,8 @@ import MongoProvider from 'eve-esi-client-mongo-provider';
 import { War } from '../api/warAPI';
 
 const warsIndexKey1: string = "id";
-const warsIndexKey2: string = "aggressor_corperation_id";
-const warsIndexKey3: string = "defender_corperation_id";
+const warsIndexKey2: string = "aggressor_corporation_id";
+const warsIndexKey3: string = "defender_corporation_id";
 const index: { [key: string]: number } = { warsIndexKey1: 1, warsIndexKey2: 1, warsIndexKey3: 1 };
 
 export class WarsQueries {

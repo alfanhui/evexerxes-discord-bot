@@ -1,4 +1,4 @@
-import { CorpStructure } from "../../../src/api/corperation/structuresAPI";
+import { CorpStructure } from "../../../src/api/corporation/structuresAPI";
 
 export const corpStructure1 = <CorpStructure>JSON.parse('{ \
     "corporation_id": 12345,  \

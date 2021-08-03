@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider/dist/MongoProvider';
 import { getPublicCharacterInfo } from '../api/characterAPI';
-import { Corperation, getCorperationInfo } from '../api/corperation/corperationAPI';
+import { Corporation, getCorporationInfo } from '../api/corporation/corporationAPI';
 import { getCharacterRoles, Roles } from '../api/rolesAPI';
 import { AcceptedChannelMongo, DiscordQueries } from '../daos/discordDAO';
 import { CharacterMongo, UserQueries } from '../daos/userDAO';
@@ -68,12 +68,12 @@ export class Cron {
            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
            characters.forEach(async(character) => {
                //TODO For each authorised method...
-               const corperationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-               var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
-               corperation.corperation_id = corperationId;
+               const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+               var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+               corporation.corporation_id = corporationId;
 
                //CorpContracts
-               await syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+               await syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
            });
            console.log("ContractScheduler finished.")
         } catch (e) {
@@ -85,17 +85,17 @@ export class Cron {
     async warScheduler() {
         console.log("Starting WarScheduler..")
         try {
-            //Get higher level calls (character and corperations)
+            //Get higher level calls (character and corporations)
             const channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
             const characters: Array<CharacterMongo> = await UserQueries.getCharacters(this.provider);
-            var corperationsInOrder: Array<Corperation> = [];
+            var corporationsInOrder: Array<Corporation> = [];
             for (const character of characters) {
-                const corperationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-                var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
-                corperation.corperation_id = corperationId;
-                corperationsInOrder.push(corperation);
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
+                corporationsInOrder.push(corporation);
             };
-            await syncWar(this.provider, this.esi, this.discordNotifier, channels, characters, corperationsInOrder);
+            await syncWar(this.provider, this.esi, this.discordNotifier, channels, characters, corporationsInOrder);
             console.log("WarScheduler finished.")
         } catch (e) {
             console.error(e)
@@ -110,15 +110,15 @@ export class Cron {
             var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
             characters.forEach(async (character) => {
                 //TODO For each authorised method...
-                const corperationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-                var corperation: Corperation = await getCorperationInfo(this.esi, null, corperationId);
-                corperation.corperation_id = corperationId;
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
 
                 //CorpStructures // only directors
                 const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
                 var roles = (await getCharacterRoles(this.esi, token, character.characterId));
                 if (roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])) {
-                    await syncFuel(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corperation);
+                    await syncFuel(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
                 }
             });
             console.log("FuelScheduler finished.")

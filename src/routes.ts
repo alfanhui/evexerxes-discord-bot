@@ -48,10 +48,10 @@ export class Routes {
             var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
             characters.forEach(async(character) => {
                 //TODO For each authorised method...
-                const corperationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-                await CorpContractQueries.deleteAll(this.provider, corperationId);
-                await CorpStructuresQueries.deleteAll(this.provider, corperationId);
-                await CorpWarsQueries.deleteAll(this.provider, corperationId);
+                const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                await CorpContractQueries.deleteAll(this.provider, corporationId);
+                await CorpStructuresQueries.deleteAll(this.provider, corporationId);
+                await CorpWarsQueries.deleteAll(this.provider, corporationId);
             });
             await WarsQueries.deleteAll(this.provider);
         }catch(e){
@@ -66,8 +66,8 @@ export class Routes {
             var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
             characters.forEach(async(character) => {
                 //TODO For each authorised method...
-                const corperationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-                await CorpStructuresQueries.deleteAll(this.provider, corperationId);
+                const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                await CorpStructuresQueries.deleteAll(this.provider, corporationId);
             });
         }catch(e){
             console.error(e);
@@ -147,9 +147,9 @@ export class Routes {
     }
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
-        const corperationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
-        await CorpContractQueries.createIndex(this.provider,corperationId);
-        await CorpStructuresQueries.createIndex(this.provider,corperationId);
-        await CorpWarsQueries.createIndex(this.provider, corperationId);
+        const corporationId: number = (await getPublicCharacterInfo(this.esi, null, newCharacter.character.characterId)).corporation_id;
+        await CorpContractQueries.createIndex(this.provider,corporationId);
+        await CorpStructuresQueries.createIndex(this.provider,corporationId);
+        await CorpWarsQueries.createIndex(this.provider, corporationId);
     }
 }

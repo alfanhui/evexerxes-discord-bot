@@ -124,7 +124,7 @@ debugging:
 * notify when someone wants to join or has left the corp
 * have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enroles players in discord groups. When players leave, they can be automatically unenrolled
 * show available corperate blueprints
-* notify details on corperation industry jobs (? we can corp indy jobs?, these are moon mining i believe)
+* notify details on corporation industry jobs (? we can corp indy jobs?, these are moon mining i believe)
 * notify when high number of kills in specified systems
 * notify new station anchering in specified systems
 * notify significant changes to corperate containers ( putting in, taking away)

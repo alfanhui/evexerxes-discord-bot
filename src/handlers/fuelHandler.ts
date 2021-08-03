@@ -3,31 +3,31 @@ import MongoProvider from 'eve-esi-client-mongo-provider';
 import { red, amber, yellow, green, blue, DiscordNotifier, } from '../notifier/discordNotifier';
 import { EmbedFieldData, MessageEmbed } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
-import { Corperation } from '../api/corperation/corperationAPI';
-import { getCorperationIconURL } from '../data/images';
-import { getCorpStructures, CorpStructure, StructureState } from '../api/corperation/structuresAPI';
+import { Corporation } from '../api/corporation/corporationAPI';
+import { getCorporationIconURL } from '../data/images';
+import { getCorpStructures, CorpStructure, StructureState } from '../api/corporation/structuresAPI';
 import { CorpStructuresQueries, FuelNotify } from '../daos/corpStructuresDAO';
 import { getSystemInfo, System } from '../api/systemAPI';
 
-export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characterId: number, corperation: Corperation): Promise<void> {
+export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characterId: number, corporation: Corporation): Promise<void> {
     try {
         //Request update from Eve API
         const token: Token = await provider.getToken(characterId, 'esi-corporations.read_structures.v1');
-        const structures: Array<CorpStructure> = await getCorpStructures(esi, token, corperation.corperation_id);
+        const structures: Array<CorpStructure> = await getCorpStructures(esi, token, corporation.corporation_id);
 
         //Remove any contacts that aren't in the original request.
-        CorpStructuresQueries.removeOldStructures(provider, corperation.corperation_id, structures);
+        CorpStructuresQueries.removeOldStructures(provider, corporation.corporation_id, structures);
 
         for (const structure of structures) {
             //Compare results with existing
-            const currentStatus: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corperation.corperation_id, structure);
+            const currentStatus: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corporation.corporation_id, structure);
             if (currentStatus == FuelNotify.UNKNOWN || currentStatus == FuelNotify.NO_CHANGE) continue;
             const currentFuelStatus: FuelNotify = CorpStructuresQueries.calculateCurrentFuelStatus(structure);
             //Post to Discord any notifications
-            const message: MessageEmbed = await compileEmbedMessage(esi, corperation, token, structure, currentFuelStatus);
+            const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, structure, currentFuelStatus);
             discordNotifier.postChannelsMsg(channels, message);
             //Save new results
-            CorpStructuresQueries.saveOrUpdateStructure(provider, corperation.corperation_id, structure);
+            CorpStructuresQueries.saveOrUpdateStructure(provider, corporation.corporation_id, structure);
         }
     } catch (e) {
         console.error(e)
@@ -35,7 +35,7 @@ export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifie
     }
 }
 
-async function compileEmbedMessage(esi: ESI, corperation: Corperation, token: Token, corpStructure: CorpStructure, currentFuelStatus: FuelNotify): Promise<MessageEmbed> {
+async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: Token, corpStructure: CorpStructure, currentFuelStatus: FuelNotify): Promise<MessageEmbed> {
     const system: System = await getSystemInfo(esi, null, corpStructure.system_id);
     var title, description = "";
     var colour: number;
@@ -75,7 +75,7 @@ async function compileEmbedMessage(esi: ESI, corperation: Corperation, token: To
     }
 
     const embed = new MessageEmbed()
-        .setAuthor(`${corperation.name}`, getCorperationIconURL(corperation.corperation_id))
+        .setAuthor(`${corporation.name}`, getCorporationIconURL(corporation.corporation_id))
         .setTitle(title)
         .setColor(colour)
         .setThumbnail('https://image.eveonline.com/Type/4312_128.png') //fuel block

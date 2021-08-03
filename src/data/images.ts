@@ -6,8 +6,8 @@ export const ICON_URLS: { [key: string]: string } = {
     contract_loan: "https://wiki.eveuniversity.org/images/2/2a/Notepad.png"
 };
 
-export function getCorperationIconURL(corperationId: number){
-    return `https://image.eveonline.com/Corporation/${corperationId}_128.png`;
+export function getCorporationIconURL(corporationId: number){
+    return `https://image.eveonline.com/Corporation/${corporationId}_128.png`;
 }
 
 export function getAllianceIconURL(allianceId: number){

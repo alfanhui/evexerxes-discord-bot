@@ -1,19 +1,19 @@
 import MongoProvider from 'eve-esi-client-mongo-provider';
-import { CorpStructure } from '../api/corperation/structuresAPI';
+import { CorpStructure } from '../api/corporation/structuresAPI';
 
 const indexKey: string = "structure_id";
 const index:{[key: string]: number} = {"structure_id": 1};
 
 export class CorpStructuresQueries {
 
-    static async createCollection(provider: MongoProvider, corperationId: number){
-        return provider.connection.db.createCollection(`${corperationId}_structures`);
+    static async createCollection(provider: MongoProvider, corporationId: number){
+        return provider.connection.db.createCollection(`${corporationId}_structures`);
     }
 
-    static async createIndex(provider: MongoProvider, corperationId: number) {
-        await this.createCollection(provider, corperationId);
-        if(await this.hasIndex(provider, corperationId)) return Promise.resolve();
-        return await provider.connection.collection(corperationId.toString() + "_structures").createIndex(
+    static async createIndex(provider: MongoProvider, corporationId: number) {
+        await this.createCollection(provider, corporationId);
+        if(await this.hasIndex(provider, corporationId)) return Promise.resolve();
+        return await provider.connection.collection(corporationId.toString() + "_structures").createIndex(
             index,
             {
                 unique: true
@@ -21,56 +21,56 @@ export class CorpStructuresQueries {
         );
     }
     
-    static async hasIndex(provider: MongoProvider, corperationId: number) {
-        var indexes: {[key: string]:Array<Array<{[key: string]: number}>>} = (await provider.connection.collection(corperationId.toString() + "_structures").getIndexes());
+    static async hasIndex(provider: MongoProvider, corporationId: number) {
+        var indexes: {[key: string]:Array<Array<{[key: string]: number}>>} = (await provider.connection.collection(corporationId.toString() + "_structures").getIndexes());
         return indexes.hasOwnProperty(`${indexKey}_1`);
     }
 
-    static async getStructure(provider: MongoProvider, corperationId: number, structure: CorpStructure): Promise<CorpStructure> {
-        return await provider.connection.collection(corperationId.toString() + "_structures").findOne({ "structure_id": structure.structure_id });
+    static async getStructure(provider: MongoProvider, corporationId: number, structure: CorpStructure): Promise<CorpStructure> {
+        return await provider.connection.collection(corporationId.toString() + "_structures").findOne({ "structure_id": structure.structure_id });
     }
 
-    static async getStructures(provider: MongoProvider, corperationId: number) {
-        return await provider.connection.collection(corperationId.toString() + "_structures").find().toArray() as Array<CorpStructure>;
+    static async getStructures(provider: MongoProvider, corporationId: number) {
+        return await provider.connection.collection(corporationId.toString() + "_structures").find().toArray() as Array<CorpStructure>;
     }
 
-    static async saveOrUpdateStructure(provider: MongoProvider, corperationId: number, structure: CorpStructure) {
+    static async saveOrUpdateStructure(provider: MongoProvider, corporationId: number, structure: CorpStructure) {
         structure.previous_fuel_status = this.calculateCurrentFuelStatus(structure);
-        return await provider.connection.collection(corperationId.toString() + "_structures").updateOne({ "structure_id": structure.structure_id }, { $set: structure }, { upsert: true });
+        return await provider.connection.collection(corporationId.toString() + "_structures").updateOne({ "structure_id": structure.structure_id }, { $set: structure }, { upsert: true });
     }
 
-    static async removeOldStructures(provider: MongoProvider, corperationId: number, structure: Array<CorpStructure>) {
+    static async removeOldStructures(provider: MongoProvider, corporationId: number, structure: Array<CorpStructure>) {
         var filter: Array<number> = structure.map((item) =>
             item.structure_id
         );
         //find with nor
-        let oldStructures: Array<CorpStructure> = await provider.connection.collection(corperationId.toString() + "_structures").find({
+        let oldStructures: Array<CorpStructure> = await provider.connection.collection(corporationId.toString() + "_structures").find({
             "structure_id": {
                 $nin: filter
             }
         }).toArray();
 
         //delete structures that are returned
-        this.deleteStructures(provider, corperationId, oldStructures);
+        this.deleteStructures(provider, corporationId, oldStructures);
     }
 
-    static async deleteAll(provider: MongoProvider, corperationId: number) {
-        return await provider.connection.collection(corperationId.toString() + "_structures").deleteMany({});
+    static async deleteAll(provider: MongoProvider, corporationId: number) {
+        return await provider.connection.collection(corporationId.toString() + "_structures").deleteMany({});
     }
 
-    static async deleteStructure(provider: MongoProvider, corperationId: number, structure: CorpStructure) {
+    static async deleteStructure(provider: MongoProvider, corporationId: number, structure: CorpStructure) {
         if (!structure || structure == undefined) return Promise.resolve();
-        return await provider.connection.collection(corperationId.toString() + "_structures").deleteOne({ "structure_id": structure.structure_id });
+        return await provider.connection.collection(corporationId.toString() + "_structures").deleteOne({ "structure_id": structure.structure_id });
     }
 
-    static async deleteStructures(provider: MongoProvider, corperationId: number, structure: Array<CorpStructure>) {
+    static async deleteStructures(provider: MongoProvider, corporationId: number, structure: Array<CorpStructure>) {
         if (!structure || structure == undefined || structure.length == 0) return Promise.resolve();
         var filter: Array<Object> = structure.map((item) => { return { "structure_id": item.structure_id } });
-        return await provider.connection.collection(corperationId.toString() + "_structures").deleteMany({ $or: filter });
+        return await provider.connection.collection(corporationId.toString() + "_structures").deleteMany({ $or: filter });
     }
 
-    static async isPresent(provider: MongoProvider, corperationId: number, structure: CorpStructure) {
-        return await provider.connection.collection(corperationId.toString() + "_structures").find({ "structure_id": structure.structure_id }).count() > 0;
+    static async isPresent(provider: MongoProvider, corporationId: number, structure: CorpStructure) {
+        return await provider.connection.collection(corporationId.toString() + "_structures").find({ "structure_id": structure.structure_id }).count() > 0;
     }
 
     static calculateCurrentFuelStatus(structure: CorpStructure):FuelNotify{
@@ -84,8 +84,8 @@ export class CorpStructuresQueries {
         else return FuelNotify.SEVEN_DAY_PLUS;
     }
 
-    static async getFuelNotifyStatus(provider: MongoProvider, corperationId: number, structure: CorpStructure): Promise<FuelNotify> {
-        const previousStructureData: CorpStructure = await this.getStructure(provider, corperationId, structure);
+    static async getFuelNotifyStatus(provider: MongoProvider, corporationId: number, structure: CorpStructure): Promise<FuelNotify> {
+        const previousStructureData: CorpStructure = await this.getStructure(provider, corporationId, structure);
         //if we have previous information, compare against
         
         //Get current fuel status
