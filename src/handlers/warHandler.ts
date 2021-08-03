@@ -40,7 +40,7 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
         for (const newWar of newWars) {
             try{
                 //Slow down pace in attempt to stop gateway errors
-                await new Promise(resolve => setTimeout(resolve, 30));
+                await new Promise(resolve => setTimeout(resolve, 60));
                 // Get New War details
                 const warDetail = await getWar(esi, token, newWar);
                 // Save New War details
