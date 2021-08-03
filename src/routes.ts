@@ -8,6 +8,18 @@ import { CorpContractQueries } from './daos/corpContractDAO';
 import { WarsQueries } from './daos/warsDAO';
 import { CorpWarsQueries } from './daos/corpWarsDAO';
 
+
+const AUTHORISATIONS: Array<string> = [
+    "esi-characters.read_corporation_roles.v1",
+    "esi-contracts.read_corporation_contracts.v1",
+    "esi-corporations.read_blueprints.v1",
+    "esi-corporations.read_structures.v1",
+    "esi-industry.read_corporation_mining.v1",
+    "esi-planets.read_customs_offices.v1",
+    "esi-universe.read_structures.v1"
+]
+
+
 export class Routes {
     router: any;
     provider: MongoProvider;
@@ -88,27 +100,20 @@ export class Routes {
             });
             ctx.body += "</table>"
         }
-        ctx.body += `<hr><h2>New Login</h2><h3>Select Authorisations:</h3><form action='/login'  method='post' name='form1'>
-            
-            <input type="checkbox" id="auth1" name="read_blueprints" value="esi-corporations.read_blueprints.v1" checked="checked">
-            <label for="auth1">esi-corporations.read_blueprints.v1</label><br>
+        ctx.body += `<hr><h2>New Login</h2><h3>Select Authorisations:</h3>`;
+        ctx.body += this.initAuthorisationsForm(); 
+    }
+    
+    initAuthorisationsForm():string{
+        var formHMTL:string = "<form action='/login' method='post' name='form1'>";
         
-            <input type="checkbox" id="auth2" name="read_corp_structures" value="esi-corporations.read_structures.v1" checked="checked">
-            <label for="auth2">esi-corporations.read_structures.v1</label><br>
+        AUTHORISATIONS.forEach((auth, index)=>{
+            formHMTL+=`<input type="checkbox" id="auth${index}" name="${auth.split('.')[1]}" value="${auth}" checked="checked">
+            <label for="auth${index}">${auth}</label><br>`
+        });
         
-            <input type="checkbox" id="auth3" name="read_character_roles" value="esi-characters.read_corporation_roles.v1" checked="checked">
-            <label for="auth3">esi-characters.read_corporation_roles.v1</label><br>
-        
-            <input type="checkbox" id="auth4" name="read_customs_offices" value="esi-planets.read_customs_offices.v1" checked="checked">
-            <label for="auth4">esi-planets.read_customs_offices.v1</label><br>
-        
-            <input type="checkbox" id="auth5" name="read_corporation_contracts" value="esi-contracts.read_corporation_contracts.v1" checked="checked">
-            <label for="auth5">esi-contracts.read_corporation_contracts.v1</label><br>
-        
-            <input type="checkbox" id="auth6" name="read_structures" value="esi-universe.read_structures.v1" checked="checked">
-            <label for="auth6">esi-universe.read_structures.v1</label><br>
-            <input type="submit" value="Add new login">
-            </form>`
+        formHMTL+= `<input type="submit" value="Add new login"></form>`
+        return formHMTL;
     }
 
     async postLoginRedirect(ctx: any) {
