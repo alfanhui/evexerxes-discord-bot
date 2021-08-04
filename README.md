@@ -57,6 +57,7 @@ Eve corp discord bot notifier
     CONTRACT_CRON=0 */5 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
     FUEL_CRON=0 0 10,13,16,19,22 * * *
     WAR_CRON=0 0 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+    MOON_EXTRACTION_CRON=0 0 12 * * *
     ```
 
 ## How to run
