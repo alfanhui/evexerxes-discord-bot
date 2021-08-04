@@ -8,10 +8,10 @@ import { MessageEmbed } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
 import { Corporation } from '../api/corporation/corporationAPI';
 import { getCorporationIconURL, getProfilePictureURL, ICON_URLS } from '../data/images';
-import { getStationInfo, Station } from '../api/stationAPI';
+import { getStationInfo, Station } from '../api/universe/stationAPI';
 import { getRouteInfo } from '../api/routerAPI';
 import { abbreviateNumber } from '../utils/numbers';
-import { getStructureInfo, Structure } from '../api/structureAPI';
+import { getStructureInfo, Structure } from '../api/universe/structureAPI';
 
 const ContractType: {[key:string]: string} = {
     unknown: 'Unknown',

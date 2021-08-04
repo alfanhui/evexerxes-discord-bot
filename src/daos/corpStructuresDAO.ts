@@ -1,5 +1,5 @@
 import MongoProvider from 'eve-esi-client-mongo-provider';
-import { CorpStructure } from '../api/corporation/structuresAPI';
+import { FuelNotify , CorpStructure} from '../api/corporation/structuresAPI';
 
 const indexKey: string = "structure_id";
 const index:{[key: string]: number} = {"structure_id": 1};
@@ -40,6 +40,7 @@ export class CorpStructuresQueries {
     }
 
     static async removeOldStructures(provider: MongoProvider, corporationId: number, structure: Array<CorpStructure>) {
+        if(!structure || structure.length < 1) return Promise.resolve();
         var filter: Array<number> = structure.map((item) =>
             item.structure_id
         );
@@ -100,14 +101,4 @@ export class CorpStructuresQueries {
             return current_fuel_status;
         }
     }
-}
-
-export enum FuelNotify {
-    SEVEN_DAY_PLUS,
-    SEVEN_DAY,
-    THREE_DAY,
-    ONE_DAY,
-    EMPTY,
-    NO_CHANGE,
-    UNKNOWN
 }

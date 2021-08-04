@@ -38,6 +38,7 @@ export class CorpWarsQueries {
     }
 
     static async removeOldWars(provider: MongoProvider, corporationId: number, wars: Array<CorpWar>) {
+        if(!wars || wars.length < 1) return Promise.resolve();
         var filter: Array<number> = wars.map((war) =>
             war.id
         );

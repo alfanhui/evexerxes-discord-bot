@@ -10,19 +10,13 @@ import { WarsQueries } from '../daos/warsDAO';
 import { CorpWar, CorpWarsQueries } from '../daos/corpWarsDAO';
 import { CharacterMongo } from '../daos/userDAO';
 import { getAllianceInfo } from '../api/allianceAPI';
+import { dateOptions } from '../utils/date';
 
 enum WAR_MESSAGE_TYPE {
     NEW,
     UPDATE,
     FINISHED
 }
-
-const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day:"numeric"
-};
 
 export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characters: Array<CharacterMongo>, corporationsInOrder: Array<Corporation>): Promise<void> {
     try {

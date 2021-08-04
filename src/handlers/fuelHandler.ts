@@ -5,9 +5,9 @@ import { EmbedFieldData, MessageEmbed } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
 import { Corporation } from '../api/corporation/corporationAPI';
 import { getCorporationIconURL } from '../data/images';
-import { getCorpStructures, CorpStructure, StructureState } from '../api/corporation/structuresAPI';
-import { CorpStructuresQueries, FuelNotify } from '../daos/corpStructuresDAO';
-import { getSystemInfo, System } from '../api/systemAPI';
+import { getCorpStructures, CorpStructure, FuelNotify } from '../api/corporation/structuresAPI';
+import { CorpStructuresQueries } from '../daos/corpStructuresDAO';
+import { getSystemInfo, System } from '../api/universe/systemAPI';
 
 export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characterId: number, corporation: Corporation): Promise<void> {
     try {

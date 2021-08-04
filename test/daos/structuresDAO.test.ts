@@ -1,8 +1,8 @@
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { cloneDeep } from 'lodash';
-import { CorpStructure } from '../../src/api/corporation/structuresAPI';
-import { CorpStructuresQueries, FuelNotify } from '../../src/daos/corpStructuresDAO';
-import { corpStructure1, corpStructure2  } from '../data/corporation/structures';
+import { CorpStructure, FuelNotify } from '../../src/api/corporation/structuresAPI';
+import { CorpStructuresQueries } from '../../src/daos/corpStructuresDAO';
+import { corpStructure1, corpStructure2 } from '../data/corporation/structures';
 import { DBManager } from '../utils/db';
 
 var dbman = new DBManager();
@@ -195,7 +195,6 @@ test('test', ()=>{
 function fail(){
     expect(true).toBe(false);
 }
-
 
 // test('isNotifiableContract true when given notifiable contract', async () => {
 //     let isSaved: boolean = await CorpStructuresQueries.isPresent(provider, corporationId, corpStructure1);

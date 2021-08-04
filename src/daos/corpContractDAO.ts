@@ -35,6 +35,7 @@ export class CorpContractQueries {
     }
 
     static async removeOldContracts(provider: MongoProvider, corporationId: number, contracts: Array<Contract>) {
+        if(!contracts || contracts.length < 1) return Promise.resolve();
         var filter: Array<number> = contracts.map((item) =>
             item.contract_id
         );

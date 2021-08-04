@@ -1,6 +1,5 @@
 import ESI from 'eve-esi-client';
 import { Token } from 'eve-esi-client';
-import { FuelNotify } from '../../daos/corpStructuresDAO';
 
 export const getCorpStructures = async (esi: ESI, token: Token, corporationId: number) => {
     return (await esi.request<CorpStructure[]>(
@@ -56,4 +55,14 @@ export enum StructureState {
     shield_vulnerable,
     unanchored,
     unknown
+}
+
+export enum FuelNotify {
+    SEVEN_DAY_PLUS,
+    SEVEN_DAY,
+    THREE_DAY,
+    ONE_DAY,
+    EMPTY,
+    NO_CHANGE,
+    UNKNOWN
 }
