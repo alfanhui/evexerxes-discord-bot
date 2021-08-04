@@ -165,10 +165,6 @@ export class Cron {
         }
     }
 
-    async bar(): Promise<void> {
-        // Do some task
-        console.log("hello")
-    }
 }
 
 
