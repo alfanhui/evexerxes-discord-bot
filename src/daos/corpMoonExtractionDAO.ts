@@ -7,7 +7,9 @@ const index:{[key: string]: number} = {"structure_id": 1};
 export class CorpMoonExtractionsQueries {
 
     static async createCollection(provider: MongoProvider, corporationId: number){
-        return provider.connection.db.createCollection(`${corporationId}_moon_extraction`);
+        if((await provider.connection.db.listCollections({name: `${corporationId}_moon_extraction`}).toArray()).length == 0){
+            return provider.connection.db.createCollection(`${corporationId}_moon_extraction`);
+        }
     }
 
     static async createIndex(provider: MongoProvider, corporationId: number) {
@@ -74,6 +76,7 @@ export class CorpMoonExtractionsQueries {
     }
 
     static async isNotifiable(provider: MongoProvider, corporationId: number, extraction: MoonExtraction) {
+        return Promise.resolve(()=>true);
         const previousExtraction:MoonExtraction = await this.getMoonExtraction(provider, corporationId, extraction);
         if(previousExtraction?.has_been_notified) return false;
         if(new Date(Date.parse(extraction.chunk_arrival_time)).getUTCDay() == new Date().getUTCDay()){

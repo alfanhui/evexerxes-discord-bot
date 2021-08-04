@@ -5,11 +5,14 @@ export const dateOptions: Intl.DateTimeFormatOptions = {
     day: "numeric"
 };
 
-export function getDuration(eveDatePast: string): string {
-    var time = new Date(Date.parse(eveDatePast)).getTime();
-    var time_now = new Date().getTime();
+export const timeOptions: Intl.DateTimeFormatOptions = {
+    timeStyle: 'short',
+    hourCycle: 'h24'
+};
+
+export function getDuration(eveDatePast: string, eveDateFuture: string): string {
     // get total seconds between the times
-    var delta = Math.abs(new Date(Date.parse(eveDatePast)).getTime() - Date.now()) / 1000;
+    var delta = Math.abs(new Date(Date.parse(eveDatePast)).getTime() - new Date(Date.parse(eveDateFuture)).getTime()) / 1000;
 
     // calculate (and subtract) whole weels
     const weeks = Math.floor(delta / 604800)

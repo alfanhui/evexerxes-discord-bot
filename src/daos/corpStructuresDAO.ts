@@ -7,7 +7,9 @@ const index:{[key: string]: number} = {"structure_id": 1};
 export class CorpStructuresQueries {
 
     static async createCollection(provider: MongoProvider, corporationId: number){
-        return provider.connection.db.createCollection(`${corporationId}_structures`);
+        if((await provider.connection.db.listCollections({name: `${corporationId}_structuress`}).toArray()).length == 0){
+            return provider.connection.db.createCollection(`${corporationId}_structures`);
+        }
     }
 
     static async createIndex(provider: MongoProvider, corporationId: number) {

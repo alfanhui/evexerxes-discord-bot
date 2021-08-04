@@ -9,7 +9,7 @@ import { getCorporationMoonExtractions, MoonExtraction } from '../api/corporatio
 import { CorpMoonExtractionsQueries } from '../daos/corpMoonExtractionDAO';
 import { getStructureInfo, Structure } from '../api/universe/structureAPI';
 import { getMoonInfo, Moon } from '../api/universe/moonAPI';
-import { dateOptions, getDuration } from '../utils/date';
+import { getDuration, timeOptions } from '../utils/date';
 
 export async function syncMoonExtraction(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier, channels: Array<AcceptedChannelMongo>, characterId: number, corporation: Corporation): Promise<void> {
     try {
@@ -37,15 +37,15 @@ export async function syncMoonExtraction(provider: MongoProvider, esi: ESI, disc
 }
 
 async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: Token, moonExtraction: MoonExtraction): Promise<MessageEmbed> {
-    const structure: Structure = await getStructureInfo(esi, null, moonExtraction.structure_id);
+    const structure: Structure = await getStructureInfo(esi, token, moonExtraction.structure_id);
     const moon: Moon = await getMoonInfo(esi, null, moonExtraction.moon_id);
 
-    const title = 'Moon Extraction Popping Today';
+    const title = 'Moon Extraction Today';
     const colour: number = purple;
     const fields: Array<EmbedFieldData> = [];
-    const description = `**${structure.name}** can be popped today at: ${new Date(moonExtraction.chunk_arrival_time).toLocaleDateString("en-US", dateOptions)}.\n`
+    const description = `**${structure.name}** can be popped today at ${new Date(moonExtraction.chunk_arrival_time).toLocaleDateString("en-GB", timeOptions)}\n(EVE Time).`
     fields.push({ name: "Location:", value: `${moon.name}`, inline:true});
-    const brewTime = getDuration(moonExtraction.extraction_start_time);
+    const brewTime = getDuration(moonExtraction.extraction_start_time, moonExtraction.chunk_arrival_time);
     if (brewTime !== "") {
         fields.push(  { name: "Brew time:", value: `${brewTime}`, inline: true});
     }
@@ -54,11 +54,12 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
         .setAuthor(`${corporation.name}`, getCorporationIconURL(corporation.corporation_id))
         .setTitle(title)
         .setColor(colour)
-        .setThumbnail('https://wiki.eveuniversity.org/images/2/22/Logo_faction_outer_ring_excavations.png') //fuel block
+        //.setThumbnail('https://wiki.eveuniversity.org/images/2/22/Logo_faction_outer_ring_excavations.png')
+        .setThumbnail('https://media.giphy.com/media/uYCQLIUdzkXI8MbOK1/giphy.gif')
         .setDescription(description)
         .addFields(fields)
         .setFooter('Auto pops at:')
-        .setTimestamp(Date.parse(moonExtraction.natural_decay_time));
+        .setTimestamp(new Date(Date.parse(moonExtraction.natural_decay_time)));
     return Promise.resolve(embed);
 }
 

@@ -7,6 +7,7 @@ import { getPublicCharacterInfo } from './api/characterAPI';
 import { CorpContractQueries } from './daos/corpContractDAO';
 import { WarsQueries } from './daos/warsDAO';
 import { CorpWarsQueries } from './daos/corpWarsDAO';
+import { CorpMoonExtractionsQueries } from './daos/corpMoonExtractionDAO';
 
 
 const AUTHORISATIONS: Array<string> = [
@@ -37,6 +38,7 @@ export class Routes {
         this.router.get('/delete/character/:characterId', (ctx: any) => this.deleteCharacter(ctx));
         this.router.get('/wipe', (ctx: any) => this.wipe(ctx));
         this.router.get('/wipe/stations', (ctx: any) => this.wipeStations(ctx));
+        this.router.get('/wipe/moon', (ctx: any) => this.wipeMoonExtraction(ctx));
     }
 
     getRouter() {
@@ -76,6 +78,21 @@ export class Routes {
         ctx.body = "<h1>STATIONS WIPED</h1>"
     }
 
+    async wipeMoonExtraction(ctx: any){
+        try{
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async(character) => {
+                //TODO For each authorised method...
+                const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                await CorpMoonExtractionsQueries.deleteAll(this.provider, corporationId);
+            });
+        }catch(e){
+            console.error(e);
+        }
+        console.log("moon collections wiped.")
+        ctx.body = "<h1>MOON EXTRACTION WIPED</h1>"
+    }
+
     async getLogin(ctx: any) {
         ctx.body = "<h1>Eve-Xerxes Discord Notifier Bot Logins</h1>"
         let accounts: Array<AccountMongo> = await UserQueries.getAccounts(this.provider);
@@ -108,7 +125,7 @@ export class Routes {
         var formHMTL:string = "<form action='/login' method='post' name='form1'>";
         
         AUTHORISATIONS.forEach((auth, index)=>{
-            formHMTL+=`<input type="checkbox" id="auth${index}" name="${auth.split('.')[1]}" value="${auth}" checked="checked">
+            formHMTL+=`<input type="checkbox" id="auth${index}" name="${auth.replace(/[._]/g, "_")}" value="${auth}" checked="checked">
             <label for="auth${index}">${auth}</label><br>`
         });
         
@@ -151,5 +168,6 @@ export class Routes {
         await CorpContractQueries.createIndex(this.provider,corporationId);
         await CorpStructuresQueries.createIndex(this.provider,corporationId);
         await CorpWarsQueries.createIndex(this.provider, corporationId);
+        await CorpMoonExtractionsQueries.createCollection(this.provider, corporationId);
     }
 }

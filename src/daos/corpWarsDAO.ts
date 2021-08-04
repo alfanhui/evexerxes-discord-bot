@@ -11,7 +11,9 @@ export interface CorpWar {
 
 export class CorpWarsQueries {
     static async createCollection(provider: MongoProvider, corporationId: number) {
-        return provider.connection.db.createCollection(corporationId.toString() + "wars");
+        if((await provider.connection.db.listCollections({name: `${corporationId}wars`}).toArray()).length == 0){
+            return provider.connection.db.createCollection(`${corporationId}wars`);
+        }
     }
 
     static async createIndex(provider: MongoProvider, corporationId: number) {
