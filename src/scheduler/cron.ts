@@ -8,6 +8,7 @@ import { AcceptedChannelMongo, DiscordQueries } from '../daos/discordDAO';
 import { CharacterMongo, UserQueries } from '../daos/userDAO';
 import { syncCorpContacts } from '../handlers/corpContractsHandler';
 import { syncFuel } from '../handlers/fuelHandler';
+import { syncMoonExtraction } from '../handlers/moonExtractionHandler';
 import { syncWar } from '../handlers/warHandler';
 import { DiscordNotifier } from '../notifier/discordNotifier';
 
@@ -16,6 +17,7 @@ export class Cron {
     contractJob: CronJob;
     fuelJob: CronJob;
     warJob: CronJob;
+    moonExtractionJob: CronJob;
 
     provider: MongoProvider;
     esi: ESI;
@@ -48,6 +50,14 @@ export class Cron {
                 console.error(e);
             }
         });
+
+        this.moonExtractionJob = new CronJob(process.env.MOON_EXTRACTION_CRON, async () => {
+            try {
+                await this.moonExtractionScheduler();
+            } catch (e) {
+                console.error(e);
+            }
+        });
         // Start jobs
         if (!this.contractJob.running) {
             this.contractJob.start();
@@ -57,6 +67,9 @@ export class Cron {
         }
         if (!this.fuelJob.running) {
             this.fuelJob.start();
+        }
+        if (!this.moonExtractionJob.running) {
+            this.moonExtractionJob.start();
         }
     }
 
@@ -127,8 +140,30 @@ export class Cron {
         }
     }
 
+    async moonExtractionScheduler() {
+        console.log("Starting MoonExtractionScheduler..")
+        try {
+            //For each character...
+            var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async (character) => {
+                //TODO For each authorised method...
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
 
-
+                //CorpMoonExtractors // only directors
+                const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
+                var roles = (await getCharacterRoles(this.esi, token, character.characterId));
+                if (roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])) {
+                    await syncMoonExtraction(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
+                }
+            });
+            console.log("MoonExtractionScheduler finished.")
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
     async bar(): Promise<void> {
         // Do some task

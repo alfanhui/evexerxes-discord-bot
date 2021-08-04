@@ -116,10 +116,10 @@ debugging:
 * notify when corp contracts are created
 * notify when at war, changes to wars we're in
 * notify when stations are low on fuel
+* notify when moon mining is ready
 
 ## ideas
 
-* notify when moon mining is ready
 * notify when structures are under attack
 * notify when someone wants to join or has left the corp
 * have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enroles players in discord groups. When players leave, they can be automatically unenrolled
