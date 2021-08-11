@@ -43,7 +43,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
     const title = 'Moon Extraction Today';
     const colour: number = purple;
     const fields: Array<EmbedFieldData> = [];
-    const description = `**${structure.name}** can be popped today at ${new Date(moonExtraction.chunk_arrival_time).toLocaleDateString("en-GB", timeOptions)}\n(EVE Time).`
+    const description = `**${structure.name}** can be popped today at ${new Date(moonExtraction.chunk_arrival_time).toLocaleDateString("en-GB", timeOptions)}\n(EVE Time)`
     fields.push({ name: "Location:", value: `${moon.name}`, inline:true});
     const brewTime = getDuration(moonExtraction.extraction_start_time, moonExtraction.chunk_arrival_time);
     if (brewTime !== "") {
