@@ -9,6 +9,7 @@ import { CharacterMongo, UserQueries } from '../daos/userDAO';
 import { syncCorpContacts } from '../handlers/corpContractsHandler';
 import { syncFuel } from '../handlers/fuelHandler';
 import { syncMoonExtraction } from '../handlers/moonExtractionHandler';
+import { syncStructureHealth } from '../handlers/structureHealthHandler';
 import { syncWar } from '../handlers/warHandler';
 import { DiscordNotifier } from '../notifier/discordNotifier';
 
@@ -18,6 +19,7 @@ export class Cron {
     fuelJob: CronJob;
     warJob: CronJob;
     moonExtractionJob: CronJob;
+    structureHealthJob: CronJob;
 
     provider: MongoProvider;
     esi: ESI;
@@ -58,6 +60,14 @@ export class Cron {
                 console.error(e);
             }
         });
+
+        this.structureHealthJob = new CronJob(process.env.STRUCTURE_HEALTH_CRON, async () => {
+            try {
+                await this.structureHealthScheduler();
+            } catch (e) {
+                console.error(e);
+            }
+        });
         // Start jobs
         if (!this.contractJob.running) {
             this.contractJob.start();
@@ -70,6 +80,9 @@ export class Cron {
         }
         if (!this.moonExtractionJob.running) {
             this.moonExtractionJob.start();
+        }
+        if(!this.structureHealthJob.running){
+            this.structureHealthJob.start();
         }
     }
 
@@ -160,6 +173,31 @@ export class Cron {
                 }
             });
             console.log("MoonExtractionScheduler finished.")
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    async structureHealthScheduler() {
+        console.log("Starting StuctureHealthScheduler..")
+        try {
+            //For each character...
+            var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async (character) => {
+                //TODO For each authorised method...
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
+
+                //CorpStructures // only directors
+                const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
+                var roles = (await getCharacterRoles(this.esi, token, character.characterId));
+                if (roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])) {
+                    await syncStructureHealth(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
+                }
+            });
+            console.log("StuctureHealthScheduler finished.")
         } catch (e) {
             console.error(e)
         }

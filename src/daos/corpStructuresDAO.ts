@@ -1,5 +1,5 @@
 import MongoProvider from 'eve-esi-client-mongo-provider';
-import { FuelNotify , CorpStructure} from '../api/corporation/structuresAPI';
+import { FuelNotify , CorpStructure, StructureState} from '../api/corporation/structuresAPI';
 
 const indexKey: string = "structure_id";
 const index:{[key: string]: number} = {"structure_id": 1};
@@ -37,7 +37,6 @@ export class CorpStructuresQueries {
     }
 
     static async saveOrUpdateStructure(provider: MongoProvider, corporationId: number, structure: CorpStructure) {
-        structure.previous_fuel_status = this.calculateCurrentFuelStatus(structure);
         return await provider.connection.collection(corporationId.toString() + "_structures").updateOne({ "structure_id": structure.structure_id }, { $set: structure }, { upsert: true });
     }
 
@@ -95,12 +94,24 @@ export class CorpStructuresQueries {
         var current_fuel_status: FuelNotify = this.calculateCurrentFuelStatus(structure);
 
         if (previousStructureData) {
+            if(!previousStructureData?.previous_fuel_status) return current_fuel_status;
             const previous_fuel_status: FuelNotify = previousStructureData.previous_fuel_status;
             //If there is a difference, notify!
             if (previous_fuel_status != current_fuel_status) return current_fuel_status;
             else return FuelNotify.NO_CHANGE;
         } else {
             return current_fuel_status;
+        }
+    }
+
+    static async isHealthNotifable(provider: MongoProvider, corporationId: number, structure: CorpStructure): Promise<boolean> {
+        const previousStructureData: CorpStructure = await this.getStructure(provider, corporationId, structure);
+        if (previousStructureData) {
+            //If there is a difference, notify!
+            if (previousStructureData.state.toString() != structure.state.toString()) return true;
+            else return false;
+        } else {
+            return true;
         }
     }
 }

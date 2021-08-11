@@ -2,10 +2,15 @@ export const dateOptions: Intl.DateTimeFormatOptions = {
     weekday: "long",
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h24",
+    timeZone: 'UTC'
 };
 
 export const timeOptions: Intl.DateTimeFormatOptions = {
+    timeZone: 'UTC',
     timeStyle: 'short',
     hourCycle: 'h24'
 };

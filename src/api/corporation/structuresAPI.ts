@@ -27,7 +27,7 @@ export interface CorpStructure {
     system_id: number //The solar system the structure is in
     type_id: number //The type id of the structure
     unanchors_at?: string //Date at which the structure will unanchor
-    previous_fuel_status?: FuelNotify
+    previous_fuel_status?: FuelNotify //Custom
 }
 
 export interface IStructureService {

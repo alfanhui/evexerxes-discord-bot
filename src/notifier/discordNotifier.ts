@@ -8,6 +8,7 @@ export const yellow: number = 0xFFFE00;
 export const green: number = 0x00FF80;
 export const purple: number = 0x8000FF;
 export const blue: number = 0x0080FF;
+export const black: number = 0x000000;
 
 export class DiscordNotifier {
     client = new Discord.Client();

@@ -81,4 +81,10 @@ export class CorpWarsQueries {
         if(!isEqual(corpWar, existingWar)) return true;
         return false;
     }
+
+    static async isAtWar(provider: MongoProvider, corporationId: number): Promise<boolean>{
+        return await provider.connection.collection(corporationId.toString() + "wars").find({
+            "finished": null
+          }).count() > 0;
+    }
 } 
