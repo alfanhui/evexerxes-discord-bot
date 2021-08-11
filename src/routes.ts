@@ -54,6 +54,7 @@ export class Routes {
                 await CorpContractQueries.deleteAll(this.provider, corporationId);
                 await CorpStructuresQueries.deleteAll(this.provider, corporationId);
                 await CorpWarsQueries.deleteAll(this.provider, corporationId);
+                await CorpMoonExtractionsQueries.deleteAll(this.provider, corporationId);
             });
             await WarsQueries.deleteAll(this.provider);
         }catch(e){
