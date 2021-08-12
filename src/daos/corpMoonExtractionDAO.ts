@@ -77,9 +77,15 @@ export class CorpMoonExtractionsQueries {
 
     static async isNotifiable(provider: MongoProvider, corporationId: number, extraction: MoonExtraction) {
         const previousExtraction:MoonExtraction = await this.getMoonExtraction(provider, corporationId, extraction);
-        if(previousExtraction?.has_been_notified) return false;
-        if(new Date(Date.parse(extraction.chunk_arrival_time)).getUTCDay() == new Date().getUTCDay()){
-              return true; 
+        if(new Date(Date.parse(extraction.chunk_arrival_time)).getUTCDate() == new Date().getUTCDate()){
+            if(previousExtraction?.has_been_notified) return false;  
+            return true; 
+        }else {
+            //If its not today and old has_been_notified exists, update moon goo
+            if(previousExtraction?.has_been_notified){
+                extraction.has_been_notified = false;
+                await this.saveOrUpdateMoonExtraction(provider, corporationId, extraction);
+            }
         }
         return false;
     }
