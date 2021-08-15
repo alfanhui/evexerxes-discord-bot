@@ -29,79 +29,88 @@ export class Cron {
         this.provider = provider;
         this.esi = esi;
         this.discordNotifier = discordNotifier;
-        this.contractJob = new CronJob(process.env.CONTRACT_CRON, async () => {
-            try {
-                await this.contractScheduler();
-            } catch (e) {
-                console.error(e);
+        if (process.env.CONTRACT_CRON) {
+            this.contractJob = new CronJob(process.env.CONTRACT_CRON, async () => {
+                try {
+                    await this.contractScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.contractJob.running) {
+                this.contractJob.start();
             }
-        });
-
-        this.fuelJob = new CronJob(process.env.FUEL_CRON, async () => {
-            try {
-                await this.fuelScheduler();
-            } catch (e) {
-                console.error(e);
-            }
-        });
-
-        this.warJob = new CronJob(process.env.WAR_CRON, async () => {
-            try {
-                await this.warScheduler();
-            } catch (e) {
-                console.error(e);
-            }
-        });
-
-        this.moonExtractionJob = new CronJob(process.env.MOON_EXTRACTION_CRON, async () => {
-            try {
-                await this.moonExtractionScheduler();
-            } catch (e) {
-                console.error(e);
-            }
-        });
-
-        this.structureHealthJob = new CronJob(process.env.STRUCTURE_HEALTH_CRON, async () => {
-            try {
-                await this.structureHealthScheduler();
-            } catch (e) {
-                console.error(e);
-            }
-        });
-        // Start jobs
-        if (!this.contractJob.running) {
-            this.contractJob.start();
         }
-        if (!this.warJob.running) {
-            this.warJob.start();
+
+        if (process.env.FUEL_CRON) {
+            this.fuelJob = new CronJob(process.env.FUEL_CRON, async () => {
+                try {
+                    await this.fuelScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.fuelJob.running) {
+                this.fuelJob.start();
+            }
         }
-        if (!this.fuelJob.running) {
-            this.fuelJob.start();
+
+        if (process.env.WAR_CRON) {
+            this.warJob = new CronJob(process.env.WAR_CRON, async () => {
+                try {
+                    await this.warScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.warJob.running) {
+                this.warJob.start();
+            }
         }
-        if (!this.moonExtractionJob.running) {
-            this.moonExtractionJob.start();
+
+        if (process.env.MOON_EXTRACTION_CRON) {
+            this.moonExtractionJob = new CronJob(process.env.MOON_EXTRACTION_CRON, async () => {
+                try {
+                    await this.moonExtractionScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.moonExtractionJob.running) {
+                this.moonExtractionJob.start();
+            }
         }
-        if(!this.structureHealthJob.running){
-            this.structureHealthJob.start();
+
+        if (process.env.STRUCTURE_HEALTH_CRON) {
+            this.structureHealthJob = new CronJob(process.env.STRUCTURE_HEALTH_CRON, async () => {
+                try {
+                    await this.structureHealthScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.structureHealthJob.running) {
+                this.structureHealthJob.start();
+            }
         }
     }
 
     async contractScheduler() {
         console.log("Starting ContractScheduler..")
         try {
-           //For each character...
-           var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
-           var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
-           characters.forEach(async(character) => {
-               //TODO For each authorised method...
-               const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
-               var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
-               corporation.corporation_id = corporationId;
+            //For each character...
+            var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async (character) => {
+                //TODO For each authorised method...
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
 
-               //CorpContracts
-               await syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
-           });
-           console.log("ContractScheduler finished.")
+                //CorpContracts
+                await syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
+            });
+            console.log("ContractScheduler finished.")
         } catch (e) {
             console.error(e)
         }

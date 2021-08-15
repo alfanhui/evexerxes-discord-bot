@@ -41,7 +41,7 @@ export class CorpStructuresQueries {
     }
 
     static async removeOldStructures(provider: MongoProvider, corporationId: number, structure: Array<CorpStructure>) {
-        if(!structure || structure.length < 1) return Promise.resolve();
+        if(structure == null || structure.length < 1) return Promise.resolve();
         var filter: Array<number> = structure.map((item) =>
             item.structure_id
         );
@@ -61,12 +61,12 @@ export class CorpStructuresQueries {
     }
 
     static async deleteStructure(provider: MongoProvider, corporationId: number, structure: CorpStructure) {
-        if (!structure || structure == undefined) return Promise.resolve();
+        if (structure == null) return Promise.resolve();
         return await provider.connection.collection(corporationId.toString() + "_structures").deleteOne({ "structure_id": structure.structure_id });
     }
 
     static async deleteStructures(provider: MongoProvider, corporationId: number, structure: Array<CorpStructure>) {
-        if (!structure || structure == undefined || structure.length == 0) return Promise.resolve();
+        if (structure == null || structure.length == 0) return Promise.resolve();
         var filter: Array<Object> = structure.map((item) => { return { "structure_id": item.structure_id } });
         return await provider.connection.collection(corporationId.toString() + "_structures").deleteMany({ $or: filter });
     }
@@ -94,7 +94,7 @@ export class CorpStructuresQueries {
         var current_fuel_status: FuelNotify = this.calculateCurrentFuelStatus(structure);
 
         if (previousStructureData) {
-            if(!previousStructureData?.previous_fuel_status) return current_fuel_status;
+            if(previousStructureData.previous_fuel_status == null) return current_fuel_status;
             const previous_fuel_status: FuelNotify = previousStructureData.previous_fuel_status;
             //If there is a difference, notify!
             if (previous_fuel_status != current_fuel_status) return current_fuel_status;

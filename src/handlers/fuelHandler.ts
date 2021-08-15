@@ -27,7 +27,7 @@ export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifie
             const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, structure, currentFuelStatus);
             discordNotifier.postChannelsMsg(channels, message);
             //Save new results
-            structure.previous_fuel_status = CorpStructuresQueries.calculateCurrentFuelStatus(structure);
+            structure.previous_fuel_status = currentFuelStatus;
             CorpStructuresQueries.saveOrUpdateStructure(provider, corporation.corporation_id, structure);
         }
     } catch (e) {
