@@ -41,7 +41,7 @@ export class CorpMoonExtractionsQueries {
     }
 
     static async removeOldMoonExtractions(provider: MongoProvider, corporationId: number, extraction: Array<MoonExtraction>) {
-        if(!extraction || extraction.length < 1) return Promise.resolve();
+        if(extraction == null || extraction.length < 1) return Promise.resolve();
         var filter: Array<number> = extraction.map((item) =>
             item.structure_id
         );
@@ -61,12 +61,12 @@ export class CorpMoonExtractionsQueries {
     }
 
     static async deleteMoonExtraction(provider: MongoProvider, corporationId: number, extraction: MoonExtraction) {
-        if (!extraction || extraction == undefined) return Promise.resolve();
+        if (extraction == null) return Promise.resolve();
         return await provider.connection.collection(corporationId.toString() + "_moon_extraction").deleteOne({ "structure_id": extraction.structure_id });
     }
 
     static async deleteMoonExtractions(provider: MongoProvider, corporationId: number, extractions: Array<MoonExtraction>) {
-        if (!extractions || extractions == undefined || extractions.length == 0) return Promise.resolve();
+        if (extractions == null || extractions.length == 0) return Promise.resolve();
         var filter: Array<Object> = extractions.map((item) => { return { "structure_id": item.structure_id } });
         return await provider.connection.collection(corporationId.toString() + "_moon_extraction").deleteMany({ $or: filter });
     }

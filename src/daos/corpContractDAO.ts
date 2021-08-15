@@ -37,7 +37,7 @@ export class CorpContractQueries {
     }
 
     static async removeOldContracts(provider: MongoProvider, corporationId: number, contracts: Array<Contract>) {
-        if(!contracts || contracts.length < 1) return Promise.resolve();
+        if(contracts == null || contracts.length < 1) return Promise.resolve();
         var filter: Array<number> = contracts.map((item) =>
             item.contract_id
         );
@@ -57,12 +57,12 @@ export class CorpContractQueries {
     }
 
     static async deleteContract(provider: MongoProvider, corporationId: number, contract: Contract) {
-        if (!contract || contract == undefined) return Promise.resolve();
+        if (contract == null) return Promise.resolve();
         return await provider.connection.collection(corporationId.toString() + "_contracts").deleteOne({ "contract_id": contract.contract_id });
     }
 
     static async deleteContracts(provider: MongoProvider, corporationId: number, contracts: Array<Contract>) {
-        if (!contracts || contracts == undefined || contracts.length == 0) return Promise.resolve();
+        if (contracts == null || contracts.length == 0) return Promise.resolve();
         var filter: Array<Object> = contracts.map((item) => { return { "contract_id": item.contract_id } });
         return await provider.connection.collection(corporationId.toString() + "_contracts").deleteMany({ $or: filter });
     }

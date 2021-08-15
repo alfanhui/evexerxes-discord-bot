@@ -41,7 +41,6 @@ export class WarsQueries {
     }
 
     static async removeOldWars(provider: MongoProvider, filter: Array<number>) {
-
         //find with nor
         let oldWars: Array<War> = await provider.connection.collection("wars").find({
             "id": {
@@ -58,12 +57,12 @@ export class WarsQueries {
     }
 
     static async deleteWar(provider: MongoProvider, war: War) {
-        if (!war || war == undefined) return Promise.resolve();
+        if (war == null) return Promise.resolve();
         return await provider.connection.collection("wars").deleteOne({ "id": war.id });
     }
 
     static async deleteWars(provider: MongoProvider, wars: Array<War>) {
-        if (!wars || wars == undefined || wars.length == 0) return Promise.resolve();
+        if (wars == null || wars.length == 0) return Promise.resolve();
         var filter: Array<Object> = wars.map((war) => { return { "id": war.id } });
         return await provider.connection.collection("wars").deleteMany({ $or: filter });
     }

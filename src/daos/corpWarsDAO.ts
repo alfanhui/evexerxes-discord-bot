@@ -40,7 +40,7 @@ export class CorpWarsQueries {
     }
 
     static async removeOldWars(provider: MongoProvider, corporationId: number, wars: Array<CorpWar>) {
-        if(!wars || wars.length < 1) return Promise.resolve();
+        if(wars == null || wars.length < 1) return Promise.resolve();
         var filter: Array<number> = wars.map((war) =>
             war.id
         );
@@ -60,12 +60,12 @@ export class CorpWarsQueries {
     }
 
     static async deleteWar(provider: MongoProvider, corporationId: number, corpWar: CorpWar) {
-        if (!corpWar || corpWar == undefined) return Promise.resolve();
+        if (corpWar == null) return Promise.resolve();
         return await provider.connection.collection(corporationId.toString() + "wars").deleteOne({ "id": corpWar.id });
     }
 
     static async deleteWars(provider: MongoProvider, corporationId: number, corpWars: Array<CorpWar>) {
-        if (!corpWars || corpWars == undefined || corpWars.length == 0) return Promise.resolve();
+        if (corpWars == null || corpWars.length == 0) return Promise.resolve();
         var filter: Array<Object> = corpWars.map((corpWar) => { return { "id": corpWar.id } });
         return await provider.connection.collection(corporationId.toString() + "wars").deleteMany({ $or: filter });
     }
