@@ -108,7 +108,7 @@ export class CorpStructuresQueries {
         const previousStructureData: CorpStructure = await this.getStructure(provider, corporationId, structure);
         if (previousStructureData) {
             //If there is a difference, notify!
-            if (previousStructureData.state.toString() != structure.state.toString()) return true;
+            if (previousStructureData.state != structure.state) return true;
             else return false;
         } else {
             return true;

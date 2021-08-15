@@ -28,7 +28,7 @@ export async function syncStructureHealth(provider: MongoProvider, esi: ESI, dis
                 discordNotifier.postChannelsMsg(channels, message);
                 //Save new results
                 if(previousStucture){
-                    structure.previous_fuel_status = previousStucture.previous_fuel_status ? previousStucture.previous_fuel_status : CorpStructuresQueries.calculateCurrentFuelStatus(structure);
+                    structure.previous_fuel_status = previousStucture.previous_fuel_status != null ? previousStucture.previous_fuel_status : CorpStructuresQueries.calculateCurrentFuelStatus(structure);
                 }
                 CorpStructuresQueries.saveOrUpdateStructure(provider, corporation.corporation_id, structure);
             }
@@ -121,6 +121,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
     }
     if (fields) embed.addFields(fields);
     embed.addField("Location:", location);
+    embed.addField("Current State:", StructureState[corpStructure.state].toString());
     return Promise.resolve(embed);
 }
 
