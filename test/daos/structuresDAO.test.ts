@@ -160,12 +160,12 @@ test('getFuelNotifyStatus more than 7 days prior on new structure gives 7PLUS da
 });
 
 test('getFuelNotifyStatus 1 days prior on already notified structure gives NO_CHANGE', async () => {
-    
     jest
     .spyOn(global.Date, 'now')
     .mockImplementation(() =>
       new Date(2021, 5, 30, 12).valueOf() //Less than one days
     );
+    corpStructure1.previous_fuel_status = CorpStructuresQueries.calculateCurrentFuelStatus(corpStructure1);
     await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
     const fuelNotify: FuelNotify = await CorpStructuresQueries.getFuelNotifyStatus(provider, corporationId, corpStructure1);
     expect(fuelNotify).toBe(FuelNotify.NO_CHANGE);
