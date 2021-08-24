@@ -71,7 +71,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
             description = `A Quantum Core can now be inserted into the new stucture: **${corpStructure.name}**. Once inserted, a 15-minute timer will start until fully operational.`;
             break;
         case StructureState[StructureState.shield_vulnerable]:
-            description = `**${corpStructure.name}'s** sheilds are online.`;
+            description = `**${corpStructure.name}'s** shields are online.`;
             title = "Structure Repaired"
             colour = green;
             if(previousState){
@@ -85,7 +85,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
             //Structure under first attack
             title = "Base Under Attack";
             colour = red;
-            description = `**${corpStructure.name}'s** sheilds are down: Armour in reinforcment mode. **Prepare for defence.** \n\nThere will be a 15-minute timer until full repair on *${new Date(corpStructure.state_timer_end).toLocaleDateString("en-GB", dateOptions)}*.\n\nThe repair timer pauses while the structure is taking damage at least 10% of its damage cap.`;
+            description = `**${corpStructure.name}'s** shields are down: Armour in reinforcment mode. **Prepare for defence.** \n\nThere will be a 15-minute timer until full repair on *${new Date(corpStructure.state_timer_end).toLocaleDateString("en-GB", dateOptions)}*.\n\nThe repair timer pauses while the structure is taking damage at least 10% of its damage cap.`;
             break;
         case StructureState[StructureState.armor_vulnerable]:
             title = "Armor Vulnerable";

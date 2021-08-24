@@ -218,8 +218,8 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
             //Stats
             fields.push({
                 name: `Final Stats`, value: `
-                            \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed} ISK
-                            \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed} ISK
+                            \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed.toFixed(0)} ISK
+                            \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed.toFixed(0)} ISK
                         `});
 
             break;
@@ -242,8 +242,8 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
             //Stats
             fields.push({
                 name: `Stats`, value: `
-                \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed} ISK
-                \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed} ISK
+                \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed.toFixed(0)} ISK
+                \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed.toFixed(0)} ISK
                 ` });
             //Thumbnail
             if (isAggressor(warDetail, corporation)) {
