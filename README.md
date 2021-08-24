@@ -115,20 +115,20 @@ debugging:
 
 ## Features
 
-* notify when corp contracts are created
-* notify when at war, changes to wars we're in
-* notify when stations are low on fuel
-* notify when moon mining is ready
+- notify when corp contracts are created
+- notify when at war, changes to wars we're in
+- notify when stations are low on fuel
+- notify when moon mining is ready
+- notify when structures are under attack (not possible to cover POCOs in this.)
 
 ## ideas
 
-* notify when structures are under attack
-* notify when someone wants to join or has left the corp
-* have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enroles players in discord groups. When players leave, they can be automatically unenrolled
-* show available corperate blueprints
-* notify details on corporation industry jobs (? we can corp indy jobs?, these are moon mining i believe)
-* notify when high number of kills in specified systems
-* notify new station anchering in specified systems
-* notify significant changes to corperate containers ( putting in, taking away)
-* show / notify on corp wallet changes
-* validate contracts if originate from an accepted station...
+- notify when someone wants to join or has left the corp
+- show available corperate blueprints (not necessary, avialable in game)
+- have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enroles players in discord groups. When players leave, they can be automatically unenrolled
+- notify details on corporation industry jobs
+- notify when high number of kills in specified systems
+- notify new station anchering in specified systems
+- notify significant changes to corperate containers ( putting in, taking away)
+- show / notify on corp wallet changes
+- validate contracts if originate from an accepted station..

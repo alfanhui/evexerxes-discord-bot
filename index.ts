@@ -20,7 +20,8 @@ const esi = new ESI({
     secretKey: process.env.EVE_SECRET,
     callbackUri: process.env.CALLBACK_URI
 });
-const routes = new Routes(provider, esi);
+const discordNotifer = new DiscordNotifier(provider);
+const routes = new Routes(provider, esi, discordNotifer);
 const app = new Koa();
 var bodyParser = require('koa-body');
 //Set up body parsing middleware
@@ -33,5 +34,4 @@ app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`);
 });
 
-const discordNotifer = new DiscordNotifier(provider);
 const cron = new Cron(provider, esi, discordNotifer);

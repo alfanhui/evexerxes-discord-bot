@@ -8,6 +8,7 @@ import { CorpContractQueries } from './daos/corpContractDAO';
 import { WarsQueries } from './daos/warsDAO';
 import { CorpWarsQueries } from './daos/corpWarsDAO';
 import { CorpMoonExtractionsQueries } from './daos/corpMoonExtractionDAO';
+import { DiscordNotifier } from './notifier/discordNotifier';
 
 
 const AUTHORISATIONS: Array<string> = [
@@ -25,10 +26,12 @@ export class Routes {
     router: any;
     provider: MongoProvider;
     esi: ESI;
+    discordNotifier: DiscordNotifier;
 
-    constructor(provider: MongoProvider, esi: ESI) {
+    constructor(provider: MongoProvider, esi: ESI, discordNotifier: DiscordNotifier) {
         this.provider = provider
         this.esi = esi;
+        this.discordNotifier = discordNotifier;
         this.router = new Router();
 
         this.router.get('/login', (ctx: any) => this.getLogin(ctx));
@@ -68,7 +71,6 @@ export class Routes {
         try{
             var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
             characters.forEach(async(character) => {
-                //TODO For each authorised method...
                 const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
                 await CorpStructuresQueries.deleteAll(this.provider, corporationId);
             });
@@ -83,7 +85,6 @@ export class Routes {
         try{
             var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
             characters.forEach(async(character) => {
-                //TODO For each authorised method...
                 const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
                 await CorpMoonExtractionsQueries.deleteAll(this.provider, corporationId);
             });
@@ -96,42 +97,54 @@ export class Routes {
 
     async getLogin(ctx: any) {
         ctx.body = "<h1>Eve-Xerxes Discord Notifier Bot Logins</h1>"
+        ctx.body += await this.initAccountsHTML();
+        ctx.body += await this.initCharactersHTML();
+        ctx.body += this.initAuthorisationsForm();
+        //ctx.body += await this.initChannelTable();
+    }
+
+    async initAccountsHTML():Promise<string>{
         let accounts: Array<AccountMongo> = await UserQueries.getAccounts(this.provider);
-        ctx.body += "<h2>Accounts</h2>";
+        var html:string = "<h2>Accounts</h2>";
         if (accounts.length == 0) {
-            ctx.body += "<i>none</i>"
+            html += "<i>none</i>"
         } else {
-            ctx.body += "<table>";
+            html += "<table>";
             accounts.forEach(account => {
-                ctx.body += String.raw`<tr><td>${account.owner}<td><button onclick="location.href ='/delete/account/${account.owner}'">Delete ${account.owner}</button>`
+                html += String.raw`<tr><td>${account.owner}<td><button onclick="location.href ='/delete/account/${account.owner}'">Delete ${account.owner}</button>`
             });
-            ctx.body += "</table>"
+            html += "</table>"
         }
+        return html;
+    }
+
+    async initCharactersHTML():Promise<string>{
         let characters: Array<CharacterMongo> = await UserQueries.getCharacters(this.provider);
-        ctx.body += "<h2>Characters</h2>";
+        var html:string = "<h2>Characters</h2>";
         if (characters.length == 0) {
-            ctx.body += "<i>none</i>";
+            html += "<i>none</i>";
         } else {
-            ctx.body += "<table><tr><th>Owner<th>Character Name<th>Character Id<th>Delete";
+            html += "<table><tr><th>Owner<th>Character Name<th>Character Id<th>Delete";
             characters.forEach(character => {
-                ctx.body += `<tr><td>${character.owner}<td>${character.characterName}<td>${character.characterId}<td><button onclick="location.href ='/delete/character/${character.characterId}'">Delete ${character.characterName}</button>`
+                html += `<tr><td>${character.owner}<td>${character.characterName}<td>${character.characterId}<td><button onclick="location.href ='/delete/character/${character.characterId}'">Delete ${character.characterName}</button>`
             });
-            ctx.body += "</table>"
+            html += "</table>"
         }
-        ctx.body += `<hr><h2>New Login</h2><h3>Select Authorisations:</h3>`;
-        ctx.body += this.initAuthorisationsForm(); 
+        return html;
     }
     
     initAuthorisationsForm():string{
-        var formHMTL:string = "<form action='/login' method='post' name='form1'>";
-        
+        var formHMTL:string =  `<hr><h2>New Login</h2><h3>Select Authorisations:</h3><form action='/login' method='post' name='form1'>`;        
         AUTHORISATIONS.forEach((auth, index)=>{
             formHMTL+=`<input type="checkbox" id="auth${index}" name="${auth.replace(/[._]/g, "_")}" value="${auth}" checked="checked">
             <label for="auth${index}">${auth}</label><br>`
-        });
-        
+        });        
         formHMTL+= `<input type="submit" value="Add new login"></form>`
         return formHMTL;
+    }
+
+    initChannelTable():Promise<string>{
+        return new Promise(()=>"");
     }
 
     async postLoginRedirect(ctx: any) {

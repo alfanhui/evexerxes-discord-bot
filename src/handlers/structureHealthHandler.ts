@@ -121,7 +121,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
     }
     if (fields) embed.addFields(fields);
     embed.addField("Location:", location);
-    embed.addField("Current State:", StructureState[corpStructure.state].toString());
+    embed.addField("Current State:", corpStructure.state);
     return Promise.resolve(embed);
 }
 

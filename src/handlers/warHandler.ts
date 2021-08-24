@@ -1,7 +1,7 @@
 import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { red, amber, green, DiscordNotifier, purple, } from '../notifier/discordNotifier';
-import { EmbedFieldData, MessageEmbed } from 'discord.js';
+import { EmbedFieldData, MessageEmbed, VolumeInterface } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
 import { Corporation, getCorporationInfo } from '../api/corporation/corporationAPI';
 import { getAllianceIconURL, getCorporationIconURL } from '../data/images';
@@ -32,14 +32,14 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
         const newWars = await WarsQueries.getAllNotSavedYet(provider, wars);
 
         for (const newWar of newWars) {
-            try{
+            try {
                 //Slow down pace in attempt to stop gateway errors
-                await new Promise(resolve => setTimeout(resolve, 60));
+                await new Promise(resolve => setTimeout(resolve, 100));
                 // Get New War details
                 const warDetail = await getWar(esi, token, newWar);
                 // Save New War details
                 await WarsQueries.saveOrUpdateWar(provider, warDetail);
-                
+
                 // Cycle characters
                 for (let corporation of corporationsInOrder) {
                     try {
@@ -57,10 +57,10 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
                             await CorpWarsQueries.saveOrUpdateWar(provider, corporation.corporation_id, warDetail)
                         }
                     } catch (e) {
-                        console.error(`warDetail ${corporation.corporation_id}`,e);
+                        console.error(`warDetail ${corporation.corporation_id}`, e);
                     }
                 }
-            }catch(e){
+            } catch (e) {
                 console.error(`warDetail ${newWar}`, e);
             }
         }
@@ -86,7 +86,7 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
                     }
                 }
             } catch (e) {
-                console.error(`existing war checks ${corporation.corporation_id}`,e);
+                console.error(`existing war checks ${corporation.corporation_id}`, e);
             }
         }
     } catch (e) {
@@ -96,26 +96,26 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
 }
 
 function isInvolvedInWar(warDetail: War, corporation: Corporation): boolean {
-    if(corporation.alliance_id){
-        if(warDetail.aggressor.alliance_id){
+    if (corporation.alliance_id) {
+        if (warDetail.aggressor.alliance_id) {
             if (warDetail.aggressor?.alliance_id == corporation?.alliance_id) return true;
         }
-        if(warDetail.defender.corporation_id){
+        if (warDetail.defender.corporation_id) {
             if (warDetail.defender?.alliance_id == corporation?.alliance_id) return true;
         }
-    }else{
-        if(warDetail.aggressor.alliance_id){
+    } else {
+        if (warDetail.aggressor.alliance_id) {
             if (warDetail.aggressor?.corporation_id == corporation?.corporation_id) return true;
         }
-        if(warDetail.defender.corporation_id){
+        if (warDetail.defender.corporation_id) {
             if (warDetail.defender?.corporation_id == corporation?.corporation_id) return true;
         }
     }
     for (const ally of warDetail.allies) {
-        if(corporation.alliance_id && ally.alliance_id){
+        if (corporation.alliance_id && ally.alliance_id) {
             if (ally?.alliance_id == corporation?.alliance_id) return true;
         }
-        if(corporation.corporation_id && ally.alliance_id){
+        if (corporation.corporation_id && ally.alliance_id) {
             if (ally?.corporation_id == corporation?.corporation_id) return true;
         }
     }
@@ -123,37 +123,48 @@ function isInvolvedInWar(warDetail: War, corporation: Corporation): boolean {
 }
 
 function isAggressor(warDetail: War, corporation: Corporation): boolean {
-    if(warDetail.aggressor.alliance_id && corporation.alliance_id){
+    if (warDetail.aggressor.alliance_id && corporation.alliance_id) {
         if (warDetail.aggressor?.alliance_id == corporation?.alliance_id) return true;
     }
-    if (warDetail.aggressor.corporation_id && corporation.corporation_id){
+    if (warDetail.aggressor.corporation_id && corporation.corporation_id) {
         if (warDetail.aggressor?.corporation_id == corporation?.corporation_id) return true;
     }
     for (const ally of warDetail.allies) {
-        if(ally.alliance_id && corporation.alliance_id){
+        if (ally.alliance_id && corporation.alliance_id) {
             if (ally?.alliance_id == corporation?.alliance_id) return true;
         }
-        if(ally.corporation_id && corporation.corporation_id){
+        if (ally.corporation_id && corporation.corporation_id) {
             if (ally?.corporation_id == corporation?.corporation_id) return true;
         }
     }
     return false;
 }
 
-async function getAggressorName(esi: ESI, token: Token, warDetail: War): Promise<string> {
-    if(warDetail.aggressor.alliance_id){
-        return `**[${(await getAllianceInfo(esi, token, warDetail.aggressor.alliance_id)).name}](https://evemaps.dotlan.net/alliance/${warDetail.aggressor.alliance_id})**` 
-    }else{
-        return `**[${(await getCorporationInfo(esi, token, warDetail.aggressor.corporation_id)).name}](https://evemaps.dotlan.net/corp/${warDetail.aggressor.corporation_id})**`;
+async function getAggressor(esi: ESI, token: Token, warDetail: War): Promise<GroupEntity> {
+    var name: string;
+    var link: string;
+    if (warDetail.aggressor.alliance_id) {
+        name = (await getAllianceInfo(esi, token, warDetail.aggressor.alliance_id)).name;
+        link = `https://evemaps.dotlan.net/alliance/${warDetail.aggressor.alliance_id}`;
+    } else {
+        name = (await getCorporationInfo(esi, token, warDetail.aggressor.corporation_id)).name;
+        link = `https://evemaps.dotlan.net/corp/${warDetail.aggressor.corporation_id}`
     }
+    return { name, link }
 }
 
-async function getDefenderName(esi: ESI, token: Token, warDetail: War): Promise<string> {
-    if( warDetail.defender.alliance_id){
-        return `**[${(await getAllianceInfo(esi, token, warDetail.defender.alliance_id)).name}](https://evemaps.dotlan.net/alliance/${warDetail.defender.alliance_id})**` 
-    }else{
-        return `**[${(await getCorporationInfo(esi, token, warDetail.defender.corporation_id)).name}](https://evemaps.dotlan.net/corp/${warDetail.defender.corporation_id})**`;
+async function getDefender(esi: ESI, token: Token, warDetail: War): Promise<GroupEntity> {
+    var name: string;
+    var link: string;
+    if (warDetail.defender.alliance_id) {
+        name = (await getAllianceInfo(esi, token, warDetail.defender.alliance_id)).name;
+        link = `https://evemaps.dotlan.net/alliance/${warDetail.defender.alliance_id}`
+
+    } else {
+        name = (await getCorporationInfo(esi, token, warDetail.defender.corporation_id)).name;
+        link = `https://evemaps.dotlan.net/corp/${warDetail.defender.corporation_id}`
     }
+    return { name, link }
 }
 
 async function getAllyName(esi: ESI, token: Token, ally: Ally): Promise<string> {
@@ -161,22 +172,27 @@ async function getAllyName(esi: ESI, token: Token, ally: Ally): Promise<string> 
 }
 
 async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporation: Corporation, token: Token, warDetail: War, war_type: WAR_MESSAGE_TYPE): Promise<MessageEmbed> {
-    const aggressorName = await getAggressorName(esi, token, warDetail);
-    const defenderName = await getDefenderName(esi, token, warDetail);
+    const aggressor: GroupEntity = await getAggressor(esi, token, warDetail);
+    const defender: GroupEntity = await getDefender(esi, token, warDetail);
+    const aggressorNameLink = `**[${aggressor.name}](${aggressor.link})**`
+    const defenderNameLink = `**[${defender.name}](${defender.link})**`
     var title, description = "";
     var colour: number;
     var thumbnail;
     var fields: Array<EmbedFieldData> = [];
-    if (warDetail.allies && warDetail.allies.length > 0) {
-        fields.push({ name: `Allies with ${defenderName}:`, value: '\u200B' }); //break
-        warDetail.allies.forEach(async (ally, index) => {
-            const allyName = await getAllyName(esi, token, ally);
-            fields.push({ name: `Ally ${index.toString()}`, value: allyName });
-        })
+
+    //Allies
+    if (warDetail.allies != null && warDetail.allies.length > 0) {
+        var allyNames: Array<string> = [];
+        for (var ally of warDetail.allies) {
+            allyNames.push(await getAllyName(esi, token, ally));
+        }
+        fields.push({ name: `Allies with ${defender.name}:`, value: `${allyNames.join(', ')}` });
     }
+
     switch (war_type) {
         case WAR_MESSAGE_TYPE.NEW:
-            description = `${aggressorName} have declared war to ${defenderName}.`
+            description = `${aggressorNameLink} have declared war to ${defenderNameLink}.`
             if (warDetail.started) {
                 fields.push({ name: "Starts at:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
             }
@@ -193,22 +209,29 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
         case WAR_MESSAGE_TYPE.FINISHED:
             title = 'WAR IS OVER!'
             colour = green;
-            description = `The war between ${aggressorName} and ${defenderName} has ended. Finished at: ${new Date(warDetail.finished).toLocaleDateString("en-US", dateOptions)}`
+            description = `The war between ${aggressorNameLink} and ${defenderNameLink} has ended. Finished at: ${new Date(warDetail.finished).toLocaleDateString("en-US", dateOptions)}`
             if (isAggressor(warDetail, corporation)) {
                 thumbnail = warDetail.defender.alliance_id ? getAllianceIconURL(warDetail.defender.alliance_id) : getCorporationIconURL(warDetail.defender.corporation_id);
             } else {
                 thumbnail = warDetail.aggressor.alliance_id ? getAllianceIconURL(warDetail.aggressor.alliance_id) : getCorporationIconURL(warDetail.aggressor.corporation_id);
             }
+            //Stats
+            fields.push({
+                name: `Final Stats`, value: `
+                            \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed} ISK
+                            \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed} ISK
+                        `});
+
             break;
         case WAR_MESSAGE_TYPE.UPDATE:
         default:
             title = 'WAR UPDATE!'
             colour = amber;
-            description = `The war between ${aggressorName} and ${defenderName} has been updated.`
+            description = `The war between ${aggressorNameLink} and ${defenderNameLink} has been updated.`
             const previousWarDetail = await WarsQueries.getWar(provider, warDetail.id);
             //Check for changes
             if (warDetail.open_for_allies != previousWarDetail.open_for_allies) {
-                fields.push({ name: "Open for Allies now:", value: warDetail.open_for_allies.valueOf() });
+                fields.push({ name: "Defender open for Allies:", value: warDetail.open_for_allies.valueOf() });
             }
             if (warDetail.retracted != previousWarDetail.retracted) {
                 fields.push({ name: "War retracted changed:", value: `Was: ${new Date(previousWarDetail.retracted).toLocaleDateString("en-US", dateOptions)}, now: ${new Date(warDetail.retracted).toLocaleDateString("en-US", dateOptions)}` });
@@ -216,6 +239,12 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
             if (warDetail.started != previousWarDetail.started) {
                 fields.push({ name: "War has started:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
             }
+            //Stats
+            fields.push({
+                name: `Stats`, value: `
+                \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed} ISK
+                \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed} ISK
+                ` });
             //Thumbnail
             if (isAggressor(warDetail, corporation)) {
                 thumbnail = warDetail.defender.alliance_id ? getAllianceIconURL(warDetail.defender.alliance_id) : getCorporationIconURL(warDetail.defender.corporation_id);
@@ -238,3 +267,7 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
     return Promise.resolve(embed);
 }
 
+interface GroupEntity {
+    name: string
+    link: string
+}
