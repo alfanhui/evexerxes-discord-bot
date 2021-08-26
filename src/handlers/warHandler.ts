@@ -262,7 +262,7 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
         .setThumbnail(thumbnail)
         .setFooter('Declared:')
         .setTimestamp(new Date(warDetail.declared))
-    fields.push({ name: "Dotland.net:", value: `https://evemaps.dotlan.net/war/${warDetail.id}` })
+    fields.push({ name: "Dotlan.net:", value: `https://evemaps.dotlan.net/war/${warDetail.id}` })
     if (fields) embed.addFields(fields);
     return Promise.resolve(embed);
 }
