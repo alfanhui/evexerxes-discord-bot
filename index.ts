@@ -7,8 +7,13 @@ import { Cron } from './src/scheduler/cron';
 require('dotenv').config()
 
 const PORT = process.env.PORT;
-const provider = new MongoProvider('mongodb://localhost/esi', {
+const user = process.env?.MONGODB_USER;
+const pass = process.env?.MONGODB_PASSWORD;
+const provider = new MongoProvider(process.env.MONGODB_URL, {
     connectionOptions: {
+        dbName: 'esi',
+        user,
+        pass,
         useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true

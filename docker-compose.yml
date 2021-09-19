@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb:/data/db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  evexerses:
+    image: evexerxes:latest
+    restart: always
+    env_file:
+      - .env
+    links:
+      - mongodb
+    ports:
+      - 8002:8080
+    depends_on:
+      - mongodb
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 600M # Must be more than 512 for javascript heap memory
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+
+volumes:
+  mongodb:

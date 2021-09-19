@@ -2,7 +2,63 @@
 
 Eve corp discord bot notifier
 
-## Dependencies and Setup
+## Docker Setup
+
+1. Build evexerxes image
+
+        ```bash
+        docker build -t evexerxes:latest .
+        ```
+
+2. Create .env file at root directory and fill out the details:
+
+    `./.env`:
+
+        ```bash
+        PORT=8002
+        MONGODB_URL=mongodb://mongodb
+        MONGODB_USER=
+        MONGODB_PASS=
+        CALLBACK_URI=
+        EVE_CLIENT_ID=
+        EVE_SECRET=
+        DISCORD_TOKEN=
+        DISCORD_TEST_CHANNEL=
+        DEBUG=
+        CONTRACT_CRON=0 */5 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+        FUEL_CRON=0 0 10,13,16,19,22 * * *
+        WAR_CRON=0 0 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+        MOON_EXTRACTION_CRON=0 0 12 * * *
+        STRUCTURE_HEALTH_CRON=0 */16 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+        ```
+
+3. Run docker-compose
+
+        ```bash
+        docker compose up -d
+        ````
+
+### Teardown
+
+1. Stop docker compose containers
+
+        ```bash
+        docker compose down
+        ```
+
+2. Remove docker compose containers
+
+        ```bash
+        docker compose rm
+        ```
+
+3. Remove docker mongodb volume
+
+        ```bash
+        docker volume rm evexerxes-discord-bot_mongodb
+        ```
+
+## Non-Docker Setup
 
 - node v14+
 - EVE Online Developer ClientID and ClientSecret
@@ -10,66 +66,69 @@ Eve corp discord bot notifier
 
 1. Install npx
 
-    ```bash
-    npm install --global npx
-    ```
+        ```bash
+        npm install --global npx
+        ```
 
 2. [Setup MongoDB](https://docs.mongodb.com/manual/administration/install-community/), create a database to be called `esi`, and make sure that it is accessible at [mongo://localhost/esi](mongo://localhost/esi). Currently tested with Mongo Community Edition V5.
 
     [_For Raspberry pi with Ubuntu:_](https://developer.mongodb.com/how-to/mongodb-on-raspberry-pi/)
 
-    ```bash
-    # Install the MongoDB GPG key:
-    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+        ```bash
+        # Install the MongoDB GPG key:
+        wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
 
-    # Add the source location for the MongoDB packages:
-    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+        # Add the source location for the MongoDB packages:
+        echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
 
-    # Download the package details for the MongoDB packages:
-    sudo apt-get update
+        # Download the package details for the MongoDB packages:
+        sudo apt-get update
 
-    # Install MongoDB:
-    sudo apt-get install -y mongodb-org
+        # Install MongoDB:
+        sudo apt-get install -y mongodb-org
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable mongod
-    sudo systemctl start mongod
-    ```
+        sudo systemctl daemon-reload
+        sudo systemctl enable mongod
+        sudo systemctl start mongod
+        ```
 
 3. Install Node dependencies
 
-    ```bash
-    npm install
-    ```
+        ```bash
+        npm install
+        ```
 
 4. Create .env file at root directory and fill out the details:
 
     `./.env`:
 
-    ```bash
-    PORT=8002
-    CALLBACK_URI=
-    EVE_CLIENT_ID=
-    EVE_SECRET=
-    DISCORD_TOKEN=
-    DISCORD_TEST_CHANNEL=
-    DEBUG=
-    CONTRACT_CRON=0 */5 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
-    FUEL_CRON=0 0 10,13,16,19,22 * * *
-    WAR_CRON=0 0 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
-    MOON_EXTRACTION_CRON=0 0 12 * * *
-    STRUCTURE_HEALTH_CRON=0 */16 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
-    ```
+        ```bash
+        PORT=8002
+        MONGODB_URL=mongodb://mongodb
+        MONGODB_USER=
+        MONGODB_PASS=
+        CALLBACK_URI=
+        EVE_CLIENT_ID=
+        EVE_SECRET=
+        DISCORD_TOKEN=
+        DISCORD_TEST_CHANNEL=
+        DEBUG=
+        CONTRACT_CRON=0 */5 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+        FUEL_CRON=0 0 10,13,16,19,22 * * *
+        WAR_CRON=0 0 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+        MOON_EXTRACTION_CRON=0 0 12 * * *
+        STRUCTURE_HEALTH_CRON=0 */16 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+        ```
 
 ## How to run
 
 1. Run the service:
 
-    ```bash
-    npm run start #development
-    #or
-    npm run prod #production
-    ```
+        ```bash
+        npm run start #development
+        #or
+        npm run prod #production
+        ```
 
 2. [Login to your Eve accounts](localhost:8002/login)
 
@@ -108,6 +167,10 @@ Eve corp discord bot notifier
 - [localhost:8002/wipe/stations](localhost:8002/wipe/stations) Debug to wipe just stations (Structure test)
 
 ## Support
+
+docker:
+
+- `docker compose logs -f`
 
 debugging:
 
