@@ -33,6 +33,8 @@ export async function syncFuel(provider: MongoProvider, esi: ESI, discordNotifie
     } catch (e) {
         console.error(e)
         return null;
+    } finally{
+        console.log(`FuelScheduler finished for ${corporation.name}`)
     }
 }
 

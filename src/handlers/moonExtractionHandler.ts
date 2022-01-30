@@ -33,6 +33,8 @@ export async function syncMoonExtraction(provider: MongoProvider, esi: ESI, disc
     } catch (e) {
         console.error(e)
         return null;
+    } finally{
+        console.log(`MoonExtractionScheduler finished for ${corporation.name}`)
     }
 }
 

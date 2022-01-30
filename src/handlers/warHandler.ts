@@ -92,6 +92,8 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
     } catch (e) {
         console.error("syncWar", e)
         return null;
+    } finally{
+        console.log(`WarScheduler finished`)
     }
 }
 

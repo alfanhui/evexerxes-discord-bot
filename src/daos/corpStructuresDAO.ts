@@ -1,5 +1,5 @@
 import MongoProvider from 'eve-esi-client-mongo-provider';
-import { FuelNotify , CorpStructure, StructureState} from '../api/corporation/structuresAPI';
+import { FuelNotify , CorpStructure} from '../api/corporation/structuresAPI';
 
 const indexKey: string = "structure_id";
 const index:{[key: string]: number} = {"structure_id": 1};
@@ -7,7 +7,7 @@ const index:{[key: string]: number} = {"structure_id": 1};
 export class CorpStructuresQueries {
 
     static async createCollection(provider: MongoProvider, corporationId: number){
-        if((await provider.connection.db.listCollections({name: `${corporationId}_structuress`}).toArray()).length == 0){
+        if((await provider.connection.db.listCollections({name: `${corporationId}_structures`}).toArray()).length == 0){
             return provider.connection.db.createCollection(`${corporationId}_structures`);
         }
     }

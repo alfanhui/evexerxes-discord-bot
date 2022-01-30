@@ -43,6 +43,8 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
     } catch (e) {
         console.error(e)
         return null;
+    } finally{
+        console.log(`ContractScheduler finished for ${corporation.name}`)
     }
 }
 

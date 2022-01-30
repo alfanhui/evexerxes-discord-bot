@@ -20,15 +20,15 @@ export async function syncStructureHealth(provider: MongoProvider, esi: ESI, dis
         CorpStructuresQueries.removeOldStructures(provider, corporation.corporation_id, structures);
 
         for (const structure of structures) {
-            var previousStucture: CorpStructure = await CorpStructuresQueries.getStructure(provider, corporation.corporation_id, structure);
+            var previousStructure: CorpStructure = await CorpStructuresQueries.getStructure(provider, corporation.corporation_id, structure);
             //Compare results with existing
             if (await CorpStructuresQueries.isHealthNotifable(provider, corporation.corporation_id, structure)) {
                 //Post to Discord any notifications
-                const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, structure, previousStucture);
+                const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, structure, previousStructure);
                 discordNotifier.postChannelsMsg(channels, message);
                 //Save new results
-                if(previousStucture){
-                    structure.previous_fuel_status = previousStucture.previous_fuel_status != null ? previousStucture.previous_fuel_status : CorpStructuresQueries.calculateCurrentFuelStatus(structure);
+                if(previousStructure){
+                    structure.previous_fuel_status = previousStructure.previous_fuel_status != null ? previousStructure.previous_fuel_status : CorpStructuresQueries.calculateCurrentFuelStatus(structure);
                 }
                 CorpStructuresQueries.saveOrUpdateStructure(provider, corporation.corporation_id, structure);
             }
@@ -36,6 +36,8 @@ export async function syncStructureHealth(provider: MongoProvider, esi: ESI, dis
     } catch (e) {
         console.error(e)
         return null;
+    } finally{
+        console.log(`StructureHealthScheduler finished for ${corporation.name}`)
     }
 }
 
@@ -56,19 +58,19 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
             description = `A 15-minute timer has started until anchor reinforcement mode.`;
             break;
         case StructureState[StructureState.anchoring]:
-            title = "New Stucture Anchor In 24h Cooldown"
+            title = "New Structure Anchor In 24h Cooldown"
             colour = yellow;
             description = `**${corpStructure.name}**`
             break;
         case StructureState[StructureState.fitting_invulnerable]:
-            title = "New Stucture in Fitting Stage"
+            title = "New Structure in Fitting Stage"
             colour = yellow;
             description = `**${corpStructure.name}** 5-minute period where it is invulnerable and can be boarded and fitted before Onlining Vulnerability stage.`    
             break;
         case StructureState[StructureState.onlining_vulnerable]:
-            title = "Insert Quantumn Core Into New Structure"
+            title = "Insert Quantum Core Into New Structure"
             colour = blue;
-            description = `A Quantum Core can now be inserted into the new stucture: **${corpStructure.name}**. Once inserted, a 15-minute timer will start until fully operational.`;
+            description = `A Quantum Core can now be inserted into the new structure: **${corpStructure.name}**. Once inserted, a 15-minute timer will start until fully operational.`;
             break;
         case StructureState[StructureState.shield_vulnerable]:
             description = `**${corpStructure.name}'s** shields are online.`;
@@ -85,7 +87,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
             //Structure under first attack
             title = "Base Under Attack";
             colour = red;
-            description = `**${corpStructure.name}'s** shields are down: Armour in reinforcment mode. **Prepare for defence.** \n\nThere will be a 15-minute timer until full repair on *${new Date(corpStructure.state_timer_end).toLocaleDateString("en-GB", dateOptions)}*.\n\nThe repair timer pauses while the structure is taking damage at least 10% of its damage cap.`;
+            description = `**${corpStructure.name}'s** shields are down: Armour in reinforcement mode. **Prepare for defence.** \n\nThere will be a 15-minute timer until full repair on *${new Date(corpStructure.state_timer_end).toLocaleDateString("en-GB", dateOptions)}*.\n\nThe repair timer pauses while the structure is taking damage at least 10% of its damage cap.`;
             break;
         case StructureState[StructureState.armor_vulnerable]:
             title = "Armor Vulnerable";
@@ -95,7 +97,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
         case StructureState[StructureState.hull_reinforce]:
             title = "Hull In Reinforcement Mode";
             colour = red;
-            description = `**${corpStructure.name}'s** armour is down: Hull in reinforcment mode. **Prepare for final defence.** \n\nThere will be a 30-minute timer until full repair on *${new Date(corpStructure.state_timer_end).toLocaleDateString("en-GB", dateOptions)}*.\n\nThe repair timer pauses while the structure is taking damage at least 10% of its damage cap.`;
+            description = `**${corpStructure.name}'s** armour is down: Hull in reinforcement mode. **Prepare for final defence.** \n\nThere will be a 30-minute timer until full repair on *${new Date(corpStructure.state_timer_end).toLocaleDateString("en-GB", dateOptions)}*.\n\nThe repair timer pauses while the structure is taking damage at least 10% of its damage cap.`;
             break;
         case StructureState[StructureState.hull_vulnerable]:
             title = "Hull Vulnerable";
