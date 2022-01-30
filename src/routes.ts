@@ -9,12 +9,14 @@ import { WarsQueries } from './daos/warsDAO';
 import { CorpWarsQueries } from './daos/corpWarsDAO';
 import { CorpMoonExtractionsQueries } from './daos/corpMoonExtractionDAO';
 import { DiscordNotifier } from './notifier/discordNotifier';
+import { CorpBlueprintDAOModelQueries } from './daos/corpBlueprintsDAO';
 
 
 const AUTHORISATIONS: Array<string> = [
     "esi-characters.read_corporation_roles.v1",
     "esi-contracts.read_corporation_contracts.v1",
     "esi-corporations.read_blueprints.v1",
+    "esi-industry.read_corporation_jobs.v1",
     "esi-corporations.read_structures.v1",
     "esi-industry.read_corporation_mining.v1",
     "esi-planets.read_customs_offices.v1",
@@ -42,6 +44,7 @@ export class Routes {
         this.router.get('/wipe', (ctx: any) => this.wipe(ctx));
         this.router.get('/wipe/stations', (ctx: any) => this.wipeStations(ctx));
         this.router.get('/wipe/moon', (ctx: any) => this.wipeMoonExtraction(ctx));
+        this.router.get('/wipe/industry', (ctx: any) => this.wipeIndustry(ctx));
     }
 
     getRouter() {
@@ -58,6 +61,7 @@ export class Routes {
                 await CorpStructuresQueries.deleteAll(this.provider, corporationId);
                 await CorpWarsQueries.deleteAll(this.provider, corporationId);
                 await CorpMoonExtractionsQueries.deleteAll(this.provider, corporationId);
+                await CorpBlueprintDAOModelQueries.deleteAll(this.provider, corporationId);
             });
             await WarsQueries.deleteAll(this.provider);
         }catch(e){
@@ -93,6 +97,20 @@ export class Routes {
         }
         console.log("moon collections wiped.")
         ctx.body = "<h1>MOON EXTRACTION WIPED</h1>"
+    }
+
+    async wipeIndustry(ctx: any){
+        try{
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async(character) => {
+                const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                await CorpBlueprintDAOModelQueries.deleteAll(this.provider, corporationId);
+            });
+        }catch(e){
+            console.error(e);
+        }
+        console.log("industry collections wiped.")
+        ctx.body = "<h1>INDUSTRY WIPED</h1>"
     }
 
     async getLogin(ctx: any) {
@@ -183,5 +201,6 @@ export class Routes {
         await CorpStructuresQueries.createIndex(this.provider,corporationId);
         await CorpWarsQueries.createIndex(this.provider, corporationId);
         await CorpMoonExtractionsQueries.createCollection(this.provider, corporationId);
+        await CorpBlueprintDAOModelQueries.createCollection(this.provider, corporationId);
     }
 }

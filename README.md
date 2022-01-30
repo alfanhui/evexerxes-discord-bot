@@ -23,6 +23,8 @@ FUEL_CRON=0 0 10,13,16,19,22 * * *
 WAR_CRON=0 0 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
 MOON_EXTRACTION_CRON=0 0 12 * * *
 STRUCTURE_HEALTH_CRON=0 */16 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+INDUSTRY_CRON=0 */15 10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
+INDUSTRY_NOTIFIER_CRON=0 12 * * * FRI #Notifier should run weekly only
 ```
 
 ## Docker Setup
@@ -163,14 +165,14 @@ non-docker:
 - notify when moon mining is ready
 - notify when structures are under attack (not possible to cover POCOs in this.)
 
-## ideas
+## Ideas
 
-- notify when someone wants to join or has left the corp
-- show available corperate blueprints (not necessary, avialable in game)
-- have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enroles players in discord groups. When players leave, they can be automatically unenrolled
 - notify details on corporation industry jobs
+- notify when someone wants to join or has left the corp
+- show available corporate blueprints (not necessary, available in game)
+- have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enrolls players in discord groups. When players leave, they can be automatically unenrolled
 - notify when high number of kills in specified systems
-- notify new station anchering in specified systems
-- notify significant changes to corperate containers ( putting in, taking away)
+- notify new station anchoring in specified systems
+- notify significant changes to corporate containers ( putting in, taking away)
 - show / notify on corp wallet changes
 - validate contracts if originate from an accepted station..

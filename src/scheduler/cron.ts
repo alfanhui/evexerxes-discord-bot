@@ -7,6 +7,8 @@ import { getCharacterRoles, Roles } from '../api/rolesAPI';
 import { AcceptedChannelMongo, DiscordQueries } from '../daos/discordDAO';
 import { CharacterMongo, UserQueries } from '../daos/userDAO';
 import { syncCorpContacts } from '../handlers/corpContractsHandler';
+import { syncCorpIndustry } from '../handlers/corpIndustryHandler';
+import { syncCorpIndustryNotifierHandler } from '../handlers/corpIndustryNotifierHandler';
 import { syncFuel } from '../handlers/fuelHandler';
 import { syncMoonExtraction } from '../handlers/moonExtractionHandler';
 import { syncStructureHealth } from '../handlers/structureHealthHandler';
@@ -20,6 +22,8 @@ export class Cron {
     warJob: CronJob;
     moonExtractionJob: CronJob;
     structureHealthJob: CronJob;
+    industryJob: CronJob;
+    industryNotifierJob: CronJob;
 
     provider: MongoProvider;
     esi: ESI;
@@ -93,6 +97,32 @@ export class Cron {
                 this.structureHealthJob.start();
             }
         }
+        
+        if (process.env.INDUSTRY_CRON) {
+            this.industryJob = new CronJob(process.env.INDUSTRY_CRON, async () => {
+                try {
+                    await this.industryScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.industryJob.running) {
+                this.industryJob.start();
+            }
+        }
+
+        if (process.env.INDUSTRY_NOTIFIER_CRON) {
+            this.industryNotifierJob = new CronJob(process.env.INDUSTRY_NOTIFIER_CRON, async () => {
+                try {
+                    await this.industryNotifierScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.industryNotifierJob.running) {
+                this.industryNotifierJob.start();
+            }
+        }
     }
 
     async contractScheduler() {
@@ -110,7 +140,6 @@ export class Cron {
                 //CorpContracts
                 await syncCorpContacts(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
             });
-            console.log("ContractScheduler finished.")
         } catch (e) {
             console.error(e)
         }
@@ -131,7 +160,6 @@ export class Cron {
                 corporationsInOrder.push(corporation);
             };
             await syncWar(this.provider, this.esi, this.discordNotifier, channels, characters, corporationsInOrder);
-            console.log("WarScheduler finished.")
         } catch (e) {
             console.error(e)
         }
@@ -156,7 +184,6 @@ export class Cron {
                     await syncFuel(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
                 }
             });
-            console.log("FuelScheduler finished.")
         } catch (e) {
             console.error(e)
         }
@@ -181,7 +208,6 @@ export class Cron {
                     await syncMoonExtraction(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
                 }
             });
-            console.log("MoonExtractionScheduler finished.")
         } catch (e) {
             console.error(e)
         }
@@ -206,12 +232,60 @@ export class Cron {
                     await syncStructureHealth(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
                 }
             });
-            console.log("StuctureHealthScheduler finished.")
         } catch (e) {
             console.error(e)
         }
     }
 
+
+    async industryScheduler() {
+        console.log("Starting IndustryScheduler..")
+        try {
+            //For each character...
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+    
+            characters.forEach(async (character) => {
+                //TODO For each authorised method...
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
+
+                //CorpIndustry // only directors
+                const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
+                var roles = (await getCharacterRoles(this.esi, token, character.characterId));
+                if (roles.roles.find((role) => role.toString() == Roles[Roles.Director])) {
+                    await syncCorpIndustry(this.provider, this.esi, character.characterId, corporation);
+                }
+            });
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    async industryNotifierScheduler() {
+        console.log("Starting IndustryNotifierScheduler..")
+        try {
+            //For each character...
+            var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+    
+            characters.forEach(async (character) => {
+                //TODO For each authorised method...
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
+
+                //CorpIndustry // only directors
+                const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
+                var roles = (await getCharacterRoles(this.esi, token, character.characterId));
+                if (roles.roles.find((role) => role.toString() == Roles[Roles.Director])) {
+                    await syncCorpIndustryNotifierHandler(this.provider, this.discordNotifier, channels, corporation);
+                }
+            });
+        } catch (e) {
+            console.error(e)
+        }
+    }
 }
 
 
