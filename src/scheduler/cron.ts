@@ -214,7 +214,7 @@ export class Cron {
     }
 
     async structureHealthScheduler() {
-        console.log("Starting StuctureHealthScheduler..")
+        console.log("Starting StructureHealthScheduler..")
         try {
             //For each character...
             var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);

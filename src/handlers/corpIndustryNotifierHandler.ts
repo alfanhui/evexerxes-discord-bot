@@ -38,7 +38,6 @@ async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels:
     var colour: number = blue;
     var fields: Array<EmbedFieldData> = [];
 
-
     //Ready
     let completedBlueprints = blueprintDAOModels.filter(value => value.material_efficiency_increase > 0 || value.time_efficiency_increase > 0 || value.copies_made > 0 || value.runs_made > 0);
     if (completedBlueprints.length > 0) {
@@ -63,9 +62,9 @@ async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels:
                     case ActivityIndex[ActivityIndex.copying]:
                         return `x${value.copies_made}\n`;
                     case ActivityIndex[ActivityIndex.researching_material_efficiency]:
-                        return `${value.material_efficiency}/${value.time_efficiency} → ${value.material_efficiency + 1}/${value.time_efficiency}\n`;
+                        return `${value.material_efficiency}(+1)/${value.time_efficiency}\n`;
                     case ActivityIndex[ActivityIndex.researching_time_efficiency]:
-                        return `${value.material_efficiency}/${value.time_efficiency} → ${value.material_efficiency}/${value.time_efficiency + 2}\n`;
+                        return `${value.material_efficiency}/${value.time_efficiency}(+2)\n`;
                     default:
                         return '\n'
                 }
@@ -85,8 +84,7 @@ async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels:
         .setColor(colour)
         .setThumbnail(`http://eve-inspiracy.com/images/shipblueprints/bp-taranis.jpg`)
         .setDescription(description)
-        //.setFooter('State changed at:')
-        .setTimestamp(Date.now());
+        .setFooter('See \'Industry\' → \'Jobs\' → \'Owned by Corp\' for details.')
 
     embed.addFields(fields);
 

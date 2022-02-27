@@ -189,14 +189,14 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
         for (var ally of warDetail.allies) {
             allyNames.push(await getAllyName(esi, token, ally));
         }
-        fields.push({ name: `Allies with ${defender.name}:`, value: `${allyNames.join(', ')}` });
+        fields.push({ name: `allies with ${defender.name}:`, value: `${allyNames.join(', ')}` });
     }
 
     switch (war_type) {
         case WAR_MESSAGE_TYPE.NEW:
             description = `${aggressorNameLink} have declared war to ${defenderNameLink}.`
             if (warDetail.started) {
-                fields.push({ name: "Starts at:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
+                fields.push({ name: "starts at:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
             }
             if (isAggressor(warDetail, corporation)) {
                 title = "WAR CONFIRMED!"
@@ -219,7 +219,7 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
             }
             //Stats
             fields.push({
-                name: `Final Stats`, value: `
+                name: `final stats`, value: `
                             \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed.toFixed(0)} ISK
                             \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed.toFixed(0)} ISK
                         `});
@@ -233,17 +233,17 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
             const previousWarDetail = await WarsQueries.getWar(provider, warDetail.id);
             //Check for changes
             if (warDetail.open_for_allies != previousWarDetail.open_for_allies) {
-                fields.push({ name: "Defender open for Allies:", value: warDetail.open_for_allies.valueOf() });
+                fields.push({ name: "defender open for allies:", value: warDetail.open_for_allies.valueOf() });
             }
             if (warDetail.retracted != previousWarDetail.retracted) {
-                fields.push({ name: "War retracted changed:", value: `Was: ${new Date(previousWarDetail.retracted).toLocaleDateString("en-US", dateOptions)}, now: ${new Date(warDetail.retracted).toLocaleDateString("en-US", dateOptions)}` });
+                fields.push({ name: "war retracted changed:", value: `Was: ${new Date(previousWarDetail.retracted).toLocaleDateString("en-US", dateOptions)}, now: ${new Date(warDetail.retracted).toLocaleDateString("en-US", dateOptions)}` });
             }
             if (warDetail.started != previousWarDetail.started) {
-                fields.push({ name: "War has started:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
+                fields.push({ name: "war has started:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
             }
             //Stats
             fields.push({
-                name: `Stats`, value: `
+                name: `stats`, value: `
                 \u200B${aggressor.name} has killed ${warDetail.aggressor.ships_killed} ships, worth ${warDetail.aggressor.isk_destroyed.toFixed(0)} ISK
                 \u200B${defender.name} et al has killed ${warDetail.defender.ships_killed} ships, worth ${warDetail.defender.isk_destroyed.toFixed(0)} ISK
                 ` });
@@ -262,9 +262,9 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
         .setColor(colour)
         .setDescription(description)
         .setThumbnail(thumbnail)
-        .setFooter('Declared:')
+        .setFooter('declared:')
         .setTimestamp(new Date(warDetail.declared))
-    fields.push({ name: "Dotlan.net:", value: `https://evemaps.dotlan.net/war/${warDetail.id}` })
+    fields.push({ name: "dotlan.net:", value: `https://evemaps.dotlan.net/war/${warDetail.id}` })
     if (fields) embed.addFields(fields);
     return Promise.resolve(embed);
 }

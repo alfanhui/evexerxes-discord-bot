@@ -118,12 +118,12 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
         .setDescription(description);
     if (corpStructure?.state_timer_start) {
         embed
-            .setFooter('State changed at:')
+            .setFooter('state changed at:')
             .setTimestamp(Date.parse(corpStructure.state_timer_start));
     }
     if (fields) embed.addFields(fields);
-    embed.addField("Location:", location);
-    embed.addField("Current State:", corpStructure.state);
+    embed.addField("location:", location);
+    embed.addField("current state:", corpStructure.state);
     return Promise.resolve(embed);
 }
 

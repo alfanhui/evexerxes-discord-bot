@@ -46,10 +46,10 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
     const colour: number = purple;
     const fields: Array<EmbedFieldData> = [];
     const description = `**${structure.name}** can be popped today at ${new Date(moonExtraction.chunk_arrival_time).toLocaleDateString("en-GB", timeOptions)}\n(EVE Time)`
-    fields.push({ name: "Location:", value: `${moon.name}`, inline:true});
+    fields.push({ name: "location:", value: `${moon.name}`, inline:true});
     const brewTime = getDuration(moonExtraction.extraction_start_time, moonExtraction.chunk_arrival_time);
     if (brewTime !== "") {
-        fields.push(  { name: "Brew time:", value: `${brewTime}`, inline: true});
+        fields.push(  { name: "brew time:", value: `${brewTime}`, inline: true});
     }
    
     const embed = new MessageEmbed()
@@ -60,7 +60,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
         .setThumbnail('https://media.giphy.com/media/uYCQLIUdzkXI8MbOK1/giphy.gif')
         .setDescription(description)
         .addFields(fields)
-        .setFooter('Auto pops at:')
+        .setFooter('auto pops at:')
         .setTimestamp(new Date(Date.parse(moonExtraction.natural_decay_time)));
     return Promise.resolve(embed);
 }

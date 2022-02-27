@@ -60,7 +60,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
             description = `**${corpStructure.name}** has less than **1 day** of fuel left.`
             break;
         case FuelNotify.THREE_DAY:
-            title = 'Med Power'
+            title = 'Medium Power'
             colour = yellow;
             description = `**${corpStructure.name}** has less than **3 days** of fuel left.`
             break;
@@ -83,10 +83,10 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
         .setColor(colour)
         .setThumbnail('https://image.eveonline.com/Type/4312_128.png') //fuel block
         .setDescription(description)
-        .setFooter('Fueled until:')
+        .setFooter('fueled until:')
         .setTimestamp(Date.parse(corpStructure.fuel_expires))
     if(fields) embed.addFields(fields);
-    embed.addField("Location:", location);
+    embed.addField("location:", location);
     return Promise.resolve(embed);
 }
 
