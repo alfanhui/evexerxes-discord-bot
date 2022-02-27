@@ -164,10 +164,10 @@ non-docker:
 - notify when stations are low on fuel
 - notify when moon mining is ready
 - notify when structures are under attack (not possible to cover POCOs in this.)
+- notify details on corporation industry jobs
 
 ## Ideas
 
-- notify details on corporation industry jobs
 - notify when someone wants to join or has left the corp
 - show available corporate blueprints (not necessary, available in game)
 - have a onboarding to discord where ranks match discord groups -> promotion in eve automatically enrolls players in discord groups. When players leave, they can be automatically unenrolled
