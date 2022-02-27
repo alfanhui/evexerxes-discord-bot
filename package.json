@@ -5,7 +5,7 @@
     "main": "./dist/index.js",
     "scripts": {
         "start": "SET NODE_ENV=development && set DEBUG=true && tsc --p tsconfig.json && nodemon ./dist/index.js",
-        "prod": "cross-env NODE_ENV=production npx tsc --p tsconfig.json && nodemon ./dist/index.js",
+        "prod": "cross-env NODE_ENV=production npx tsc --p tsconfig.json && node ./dist/index.js",
         "pi-start": "concurrently \"NODE_ENV=development tsc -w --p tsconfig.json\"  \"NODE_ENV=development nodemon ./dist/index.js\"",
         "test": "jest --detectOpenHandles"
     },
