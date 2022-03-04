@@ -34,7 +34,7 @@ export async function syncCorpIndustryNotifierHandler(provider: MongoProvider, d
 
 async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels: Array<BlueprintDAOModel>): Promise<MessageEmbed> {
     var title: string = "Industry Jobs Update"
-    var description: string = `${corporation.name} Weekly Industry Job Updates`;
+    var description: string = `${corporation.name} weekly industry job updates:`;
     var colour: number = blue;
     var fields: Array<EmbedFieldData> = [];
 
