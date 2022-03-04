@@ -2,12 +2,27 @@
 import ESI, { Token } from 'eve-esi-client';
 
 export const getCorpBlueprints = async (esi: ESI, token: Token, corporationId: number) => {
-    return (await esi.request<Array<Blueprint>>(
+    var response = await esi.request<Array<Blueprint>>(
         `/corporations/${corporationId}/blueprints/`,
         null,
         null,
         { token }
-    )).json();
+    );
+
+    var blueprints :Blueprint[] = await response.json();
+
+    if(response.headers['x-pages'] > 1){
+        for(let i :number = 2; i <= response.headers['x-pages']; i++ ){
+            blueprints = blueprints.concat( await (await esi.request<Array<Blueprint>>(
+                `/corporations/${corporationId}/blueprints/?page=${i}`,
+                null,
+                null,
+                { token }
+            )).json());
+        }
+    }
+    
+    return Promise.resolve(blueprints);
 }
 
 export interface Blueprint {

@@ -24,7 +24,7 @@ export function serialiseNewDAOModel(blueprint: Blueprint, industry: Industry, t
     let blueprintDAOModel: BlueprintDAOModel = {} as BlueprintDAOModel;
     blueprintDAOModel.name = type.name;
     blueprintDAOModel.item_id = industry.blueprint_id;
-    blueprintDAOModel.type_id = blueprint.type_id;
+    blueprintDAOModel.type_id = type.type_id;
     blueprintDAOModel.material_efficiency = blueprint.material_efficiency;
     blueprintDAOModel.time_efficiency = blueprint.time_efficiency;
     blueprintDAOModel.material_efficiency_increase = blueprintDAOModel.time_efficiency_increase = blueprintDAOModel.runs_made = blueprintDAOModel.copies_made = 0;

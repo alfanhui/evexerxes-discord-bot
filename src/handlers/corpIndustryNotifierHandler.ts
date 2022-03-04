@@ -74,7 +74,7 @@ async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels:
 
     let deliverableBlueprints = blueprintDAOModels.filter(value => value.status == IStatus.ready || value.status == IStatus.delivered);
     if(deliverableBlueprints.length > 0){
-        fields.push({ name: "Deliverable BPOs", value: `${deliverableBlueprints.map((value) => shortenBPOName(value.name, value.type_id, false) + "\n").join(' ')}`, inline: true });
+        fields.push({ name: "Deliverable BPOs", value: `${deliverableBlueprints.length} ready for delivery `, inline: true });
     }
 
     //Compile message
