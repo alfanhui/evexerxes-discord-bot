@@ -81,9 +81,9 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
             var structureEnd: Structure = null;
             var stationEnd: Station = null;
             if(contract.end_location_id > 1000000000000){
-                structureEnd = (await getStructureInfo(esi, token, contract.start_location_id));
+                structureEnd = (await getStructureInfo(esi, token, contract.end_location_id));
             }else{
-                stationEnd = (await getStationInfo(esi, null, contract.start_location_id));
+                stationEnd = (await getStationInfo(esi, null, contract.end_location_id));
             }
             const jumps: number = (await getRouteInfo(esi, null, (stationStart)? stationStart.system_id : structureStart.solar_system_id, (stationEnd)? stationEnd.system_id : structureEnd.solar_system_id)).length
             embed.addFields(
