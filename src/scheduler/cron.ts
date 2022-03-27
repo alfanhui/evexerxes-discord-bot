@@ -253,7 +253,7 @@ export class Cron {
                 //CorpIndustry // only directors
                 const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
                 var roles = (await getCharacterRoles(this.esi, token, character.characterId));
-                if (roles.roles.find((role) => role.toString() == Roles[Roles.Director])) {
+                if (roles.roles.find((role) => role.toString() == Roles[Roles.Factory_Manager])) {
                     await syncCorpIndustry(this.provider, this.esi, character.characterId, corporation);
                 }
             });
