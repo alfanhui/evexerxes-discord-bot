@@ -1,8 +1,37 @@
+import { Message } from 'discord.js';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { Contract, IStatus } from '../api/corporation/contractsAPI';
 
 const indexKey: string = "contract_id";
 const index:{[key: string]: number} = {"contract_id": 1};
+
+export interface ChannelMessageID {
+    channelId: string,
+    messageId: string
+}
+
+export interface ContractDAOModel {
+    contract_id: number, //contract ID
+    contract: Contract, //original contract
+    channelMessageIDs: ChannelMessageID[] //To react to later
+    hasBeenReacted: Boolean;
+}
+
+export function serialiseContractDAOModel(contract: Contract, sentMessages: Message[]):ContractDAOModel {
+    let contractDAOModel: ContractDAOModel = {} as ContractDAOModel;
+    contractDAOModel.contract = contract;
+    contractDAOModel.contract_id = contract.contract_id;
+    let channelMessageIDs: ChannelMessageID[] = [];
+    for(const message of sentMessages){
+        let channelMessageID: ChannelMessageID = {} as ChannelMessageID;
+        channelMessageID.channelId = message.channel.id;
+        channelMessageID.messageId = message.id;
+        channelMessageIDs.push(channelMessageID);
+    }
+    contractDAOModel.channelMessageIDs = channelMessageIDs;
+    contractDAOModel.hasBeenReacted = false;
+    return contractDAOModel;
+}
 
 export class CorpContractQueries {
 
@@ -28,11 +57,15 @@ export class CorpContractQueries {
         return indexes.hasOwnProperty(`${indexKey}_1`);
     }
 
-    static async getContracts(provider: MongoProvider, corporationId: number) {
-        return await provider.connection.collection(corporationId.toString() + "_contracts").find().toArray() as Array<Contract>;
+    static async getContract(provider: MongoProvider, corporationId: number, contract: Contract): Promise<ContractDAOModel> {
+        return await provider.connection.collection(corporationId.toString() + "_contracts").findOne({ "contract_id": contract.contract_id });
     }
 
-    static async saveOrUpdateContract(provider: MongoProvider, corporationId: number, contract: Contract) {
+    static async getContracts(provider: MongoProvider, corporationId: number) {
+        return await provider.connection.collection(corporationId.toString() + "_contracts").find().toArray() as Array<ContractDAOModel>;
+    }
+
+    static async saveOrUpdateContract(provider: MongoProvider, corporationId: number, contract: ContractDAOModel) {
         return await provider.connection.collection(corporationId.toString() + "_contracts").updateOne({ "contract_id": contract.contract_id }, { $set: contract }, { upsert: true });
     }
 
@@ -73,11 +106,15 @@ export class CorpContractQueries {
 
     static async isNotifiable(provider: MongoProvider, corporationId: number, contract: Contract) {
         const foundContract: boolean = await this.isPresent(provider, corporationId, contract);
-        if ((contract.status.toString() !== IStatus[IStatus.in_progress] && contract.status.toString() !== IStatus[IStatus.outstanding])) {
+        if (contract.status.toString() !== IStatus[IStatus.in_progress] && contract.status.toString() !== IStatus[IStatus.outstanding]) {
             return false;
         }else if(foundContract){
             return false;
         }
         return true;
+    }
+
+    static isReactable(contract: Contract): Boolean {
+        return (contract.status.toString() == IStatus[IStatus.finished] || contract.status.toString() == IStatus[IStatus.finished_contractor] || contract.status.toString() == IStatus[IStatus.finished_issuer]);
     }
 }

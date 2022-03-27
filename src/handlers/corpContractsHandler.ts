@@ -2,9 +2,9 @@ import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { CharacterPublic, getPublicCharacterInfo } from '../api/characterAPI';
 import { Contract, getCorpContracts, IType } from '../api/corporation/contractsAPI';
-import { CorpContractQueries } from "../daos/corpContractDAO";
+import { ContractDAOModel, CorpContractQueries, serialiseContractDAOModel } from "../daos/corpContractDAO";
 import { blue, DiscordNotifier } from '../notifier/discordNotifier';
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { AcceptedChannelMongo } from '../daos/discordDAO';
 import { Corporation } from '../api/corporation/corporationAPI';
 import { getCorporationIconURL, getProfilePictureURL, ICON_URLS } from '../data/images';
@@ -13,7 +13,7 @@ import { getRouteInfo } from '../api/routerAPI';
 import { abbreviateNumber } from '../utils/numbers';
 import { getStructureInfo, Structure } from '../api/universe/structureAPI';
 
-const ContractType: {[key:string]: string} = {
+const ContractType: { [key: string]: string } = {
     unknown: 'Unknown',
     item_exchange: 'Item Exchange',
     auction: 'Auction',
@@ -33,17 +33,38 @@ export async function syncCorpContacts(provider: MongoProvider, esi: ESI, discor
         for (const contract of contracts) {
             //Compare results with existing
             if (contract.assignee_id != corporation.corporation_id) continue;
+
+            // React to any resolved contracts
+            if (CorpContractQueries.isReactable(contract)) {
+                let contractDAOModel: ContractDAOModel = await CorpContractQueries.getContract(provider, corporation.corporation_id, contract);
+                if (contractDAOModel !== null 
+                        && contractDAOModel.hasOwnProperty('hasBeenReacted')
+                        && contractDAOModel.hasBeenReacted == false
+                        && contractDAOModel.hasOwnProperty('channelMessageIDs') 
+                        && contractDAOModel.channelMessageIDs.length > 0) {
+                    for (const channelMessageId of contractDAOModel.channelMessageIDs) {
+                        discordNotifier.reactToPreviousMsg(channelMessageId.channelId, channelMessageId.messageId, '🫂') //People hugging
+                    }
+                    contractDAOModel.contract = contract;
+                    contractDAOModel.hasBeenReacted = true;
+                    CorpContractQueries.saveOrUpdateContract(provider, corporation.corporation_id, contractDAOModel);
+                }
+            }
+
+            // Reject any which are not notifable
             if (!await CorpContractQueries.isNotifiable(provider, corporation.corporation_id, contract)) continue;
+
             //Post to Discord any notifications
             const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, contract);
-            discordNotifier.postChannelsMsg(channels, message);
+            let sentMessages: Message[] = await discordNotifier.postChannelsMsg(channels, message);
+            let contractDAOModel: ContractDAOModel = serialiseContractDAOModel(contract, sentMessages);
             //Save new results
-            CorpContractQueries.saveOrUpdateContract(provider, corporation.corporation_id, contract);
+            CorpContractQueries.saveOrUpdateContract(provider, corporation.corporation_id, contractDAOModel);
         }
     } catch (e) {
         console.error(e)
         return null;
-    } finally{
+    } finally {
         console.log(`ContractScheduler finished for ${corporation.name}`)
     }
 }
@@ -52,9 +73,9 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
     const characterPublic: CharacterPublic = await getPublicCharacterInfo(esi, null, contract.issuer_id);
     var structureStart: Structure = null;
     var stationStart: Station = null;
-    if(contract.start_location_id > 1000000000000){
+    if (contract.start_location_id > 1000000000000) {
         structureStart = (await getStructureInfo(esi, token, contract.start_location_id));
-    }else{
+    } else {
         stationStart = (await getStationInfo(esi, null, contract.start_location_id));
     }
     const embed = new MessageEmbed()
@@ -80,19 +101,19 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
         case IType[IType.courier]:
             var structureEnd: Structure = null;
             var stationEnd: Station = null;
-            if(contract.end_location_id > 1000000000000){
+            if (contract.end_location_id > 1000000000000) {
                 structureEnd = (await getStructureInfo(esi, token, contract.end_location_id));
-            }else{
+            } else {
                 stationEnd = (await getStationInfo(esi, null, contract.end_location_id));
             }
-            const jumps: number = (await getRouteInfo(esi, null, (stationStart)? stationStart.system_id : structureStart.solar_system_id, (stationEnd)? stationEnd.system_id : structureEnd.solar_system_id)).length
+            const jumps: number = (await getRouteInfo(esi, null, (stationStart) ? stationStart.system_id : structureStart.solar_system_id, (stationEnd) ? stationEnd.system_id : structureEnd.solar_system_id)).length
             embed.addFields(
-                { name: 'reward:', value: `${abbreviateNumber(contract.reward)} ISK`, inline: true},
+                { name: 'reward:', value: `${abbreviateNumber(contract.reward)} ISK`, inline: true },
                 { name: 'start location:', value: `${stationStart ? stationStart.name : structureStart.name}` },
                 { name: 'end location:', value: `${stationEnd ? stationEnd.name : structureEnd.name}` },
-                { name: 'minimum jumps:', value: `${jumps}`, inline: true},
+                { name: 'minimum jumps:', value: `${jumps}`, inline: true },
                 { name: 'collateral:', value: `${abbreviateNumber(contract.collateral)} ISK`, inline: true },
-                { name: 'days to complete:', value: `${contract.days_to_complete}`},
+                { name: 'days to complete:', value: `${contract.days_to_complete}` },
             )
             break;
         case IType[IType.item_exchange]:
