@@ -2,7 +2,7 @@ import ESI, { Token } from 'eve-esi-client';
 import MongoProvider from 'eve-esi-client-mongo-provider';
 import { Corporation } from '../api/corporation/corporationAPI';
 import { getCorpIndustry, Industry } from '../api/corporation/IndustryAPI';
-import { BlueprintDAOModel, CorpBlueprintDAOModelQueries, serialiseNewDAOModel, updateDAOModel } from '../daos/corpBlueprintsDAO';
+import { BlueprintDAOModel, CorpBlueprintDAOModelQueries, serialiseBlueprintDAOModel, updateBlueprintDAOModel } from '../daos/corpBlueprintsDAO';
 import { Blueprint, getCorpBlueprints } from '../api/corporation/blueprintsAPI';
 import { getTypeInfo, Type } from '../api/universe/typeAPI';
 
@@ -26,9 +26,9 @@ export async function syncCorpIndustry(provider: MongoProvider, esi: ESI, charac
             if (!blueprintDAOModel){
                 var type: Type = await getTypeInfo(esi, null, industry.blueprint_type_id);
                 var blueprint = blueprintsSet.get(industry.blueprint_id); //blueprints update their values before delivery.
-                blueprintDAOModel = serialiseNewDAOModel(blueprint, industry, type);
+                blueprintDAOModel = serialiseBlueprintDAOModel(blueprint, industry, type);
             } else {
-                blueprintDAOModel = updateDAOModel(blueprintDAOModel, industry);
+                blueprintDAOModel = updateBlueprintDAOModel(blueprintDAOModel, industry);
             }
             CorpBlueprintDAOModelQueries.saveOrUpdateBlueprintDAOModel(provider, corporation.corporation_id, blueprintDAOModel);
         }

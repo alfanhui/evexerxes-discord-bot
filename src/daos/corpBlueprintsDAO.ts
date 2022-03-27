@@ -20,7 +20,7 @@ export interface BlueprintDAOModel {
     current_activity: string
 }
 
-export function serialiseNewDAOModel(blueprint: Blueprint, industry: Industry, type: Type) {
+export function serialiseBlueprintDAOModel(blueprint: Blueprint, industry: Industry, type: Type): BlueprintDAOModel {
     let blueprintDAOModel: BlueprintDAOModel = {} as BlueprintDAOModel;
     blueprintDAOModel.name = type.name;
     blueprintDAOModel.item_id = industry.blueprint_id;
@@ -28,10 +28,10 @@ export function serialiseNewDAOModel(blueprint: Blueprint, industry: Industry, t
     blueprintDAOModel.material_efficiency = blueprint.material_efficiency;
     blueprintDAOModel.time_efficiency = blueprint.time_efficiency;
     blueprintDAOModel.material_efficiency_increase = blueprintDAOModel.time_efficiency_increase = blueprintDAOModel.runs_made = blueprintDAOModel.copies_made = 0;
-    return updateDAOModel(blueprintDAOModel, industry);
+    return updateBlueprintDAOModel(blueprintDAOModel, industry);
 }
 
-export function updateDAOModel(blueprintDAOModel: BlueprintDAOModel, industry: Industry) {
+export function updateBlueprintDAOModel(blueprintDAOModel: BlueprintDAOModel, industry: Industry): BlueprintDAOModel {
     //Strangely, items that have ended show up as still active..
     blueprintDAOModel.status = new Date(Date.parse(industry.end_date)).getTime() < (Date.now()) ? IStatus['ready'] : industry.status;
     blueprintDAOModel.current_activity = ActivityIndex[industry.activity_id];
