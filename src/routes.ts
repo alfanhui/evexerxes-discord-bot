@@ -10,6 +10,7 @@ import { CorpWarsQueries } from './daos/corpWarsDAO';
 import { CorpMoonExtractionsQueries } from './daos/corpMoonExtractionDAO';
 import { DiscordNotifier } from './notifier/discordNotifier';
 import { CorpBlueprintDAOModelQueries } from './daos/corpBlueprintsDAO';
+import { CharNotificationsQueries } from './daos/charNotificationsDAO';
 
 
 const AUTHORISATIONS: Array<string> = [
@@ -20,7 +21,8 @@ const AUTHORISATIONS: Array<string> = [
     "esi-corporations.read_structures.v1",
     "esi-industry.read_corporation_mining.v1",
     "esi-planets.read_customs_offices.v1",
-    "esi-universe.read_structures.v1"
+    "esi-universe.read_structures.v1",
+    "esi-characters.read_notifications.v1"
 ]
 
 
@@ -62,6 +64,7 @@ export class Routes {
                 await CorpWarsQueries.deleteAll(this.provider, corporationId);
                 await CorpMoonExtractionsQueries.deleteAll(this.provider, corporationId);
                 await CorpBlueprintDAOModelQueries.deleteAll(this.provider, corporationId);
+                await CharNotificationsQueries.deleteAll(this.provider, character.characterId);
             });
             await WarsQueries.deleteAll(this.provider);
         }catch(e){
@@ -77,6 +80,7 @@ export class Routes {
             characters.forEach(async(character) => {
                 const corporationId: number =  (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
                 await CorpStructuresQueries.deleteAll(this.provider, corporationId);
+                await CharNotificationsQueries.deleteAll(this.provider, character.characterId);
             });
         }catch(e){
             console.error(e);

@@ -4,7 +4,7 @@
     "description": "Eve corp discord bot notifier",
     "main": "./dist/index.js",
     "scripts": {
-        "start": "SET NODE_ENV=development && set DEBUG=true && tsc --p tsconfig.json && nodemon ./dist/index.js",
+        "start": "set NODE_ENV=development && set DEBUG=true && tsc --p tsconfig.json && nodemon ./dist/index.js",
         "prod": "cross-env NODE_ENV=production npx tsc --p tsconfig.json && node ./dist/index.js",
         "pi-start": "concurrently \"NODE_ENV=development tsc -w --p tsconfig.json\"  \"NODE_ENV=development nodemon ./dist/index.js\"",
         "test": "jest --detectOpenHandles"
@@ -30,7 +30,7 @@
         "koa-body": "^4.2.0",
         "koa-router": "^10.0.0",
         "lodash": "^4.17.21",
-        "nodemon": "^2.0.7",
+        "nodemon": "^2.0.16",
         "toad-scheduler": "^1.5.0"
     },
     "devDependencies": {
