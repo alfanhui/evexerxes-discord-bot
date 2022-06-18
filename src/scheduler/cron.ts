@@ -12,6 +12,7 @@ import { syncCorpIndustryNotifierHandler } from '../handlers/corpIndustryNotifie
 import { syncFuel } from '../handlers/fuelHandler';
 import { syncMoonExtraction } from '../handlers/moonExtractionHandler';
 import { syncStructureHealth } from '../handlers/structureHealthHandler';
+import { syncCharNotifications } from '../handlers/charNotificationsHandler';
 import { syncWar } from '../handlers/warHandler';
 import { DiscordNotifier } from '../notifier/discordNotifier';
 
@@ -22,6 +23,7 @@ export class Cron {
     warJob: CronJob;
     moonExtractionJob: CronJob;
     structureHealthJob: CronJob;
+    charNotifJob: CronJob;
     industryJob: CronJob;
     industryNotifierJob: CronJob;
 
@@ -95,6 +97,19 @@ export class Cron {
             });
             if (!this.structureHealthJob.running) {
                 this.structureHealthJob.start();
+            }
+        }
+
+        if(process.env.CHAR_NOTIFICATION_CRON) {
+            this.charNotifJob = new CronJob(process.env.CHAR_NOTIFICATION_CRON, async () => {
+                try {
+                    await this.charNotificationsScheduler();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            if (!this.charNotifJob.running) {
+                this.charNotifJob.start();
             }
         }
         
@@ -206,6 +221,30 @@ export class Cron {
                 var roles = (await getCharacterRoles(this.esi, token, character.characterId));
                 if (roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])) {
                     await syncMoonExtraction(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
+                }
+            });
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    async charNotificationsScheduler() {
+        console.log("Starting CharacterNotificationsScheduler")
+        try {
+            //For each character...
+            var channels: Array<AcceptedChannelMongo> = await DiscordQueries.getAcceptedChannels(this.provider);
+            var characters: CharacterMongo[] = await UserQueries.getCharacters(this.provider);
+            characters.forEach(async (character) => {
+                //TODO For each authorised method...
+                const corporationId: number = (await getPublicCharacterInfo(this.esi, null, character.characterId)).corporation_id;
+                var corporation: Corporation = await getCorporationInfo(this.esi, null, corporationId);
+                corporation.corporation_id = corporationId;
+
+                //CorpStructures // only directors
+                const token: Token = await this.provider.getToken(character.characterId, 'esi-characters.read_corporation_roles.v1')
+                var roles = (await getCharacterRoles(this.esi, token, character.characterId));
+                if (roles.roles.find((role) => role.toString() == Roles[Roles.Station_Manager])) {
+                    await syncCharNotifications(this.provider, this.esi, this.discordNotifier, channels, character.characterId, corporation);
                 }
             });
         } catch (e) {
