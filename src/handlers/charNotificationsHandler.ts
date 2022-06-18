@@ -48,7 +48,7 @@ async function compileEmbedMessage(esi: ESI, corporation: Corporation, token: To
 
     const embed = new MessageEmbed()
         .setAuthor(`${corporation.name}`, getCorporationIconURL(corporation.corporation_id))
-        .setTitle('A Structure is getting attacked!')
+        .setTitle('A Structure is under attack!')
         .setColor(red)
         .setDescription('Go defend it now!');
 
