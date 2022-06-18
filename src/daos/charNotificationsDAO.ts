@@ -75,7 +75,7 @@ export class CharNotificationsQueries {
         return await provider.connection.collection(characterId.toString() + "_notifications").find({ "notification_id": notification.notification_id }).count() > 0;
     }
 
-    static async isNotifyable(characterId: number, notification: CharNotification) {
+    static async isNotifyable(notification: CharNotification) {
         return notification.type.toString() == Type[Type.StructureUnderAttack];
     }
 
