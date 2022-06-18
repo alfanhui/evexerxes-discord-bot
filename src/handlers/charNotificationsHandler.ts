@@ -35,7 +35,7 @@ export async function syncCharNotifications(provider: MongoProvider, esi: ESI, d
         console.error(e)
         return null;
     } finally{
-        console.log(`StructureHealthScheduler finished for ${corporation.name}`)
+        console.log(`CharNotificationsScheduler finished for ${corporation.name}`)
     }
 }
 
