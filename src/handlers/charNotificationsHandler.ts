@@ -23,7 +23,7 @@ export async function syncCharNotifications(provider: MongoProvider, esi: ESI, d
             var isOldNotification: boolean = await CharNotificationsQueries.isPresent(provider, characterId, notification);
 
             if(!isOldNotification) {
-                if(await CharNotificationsQueries.isNotifyable(characterId, notification)) {
+                if(await CharNotificationsQueries.isNotifyable(notification)) {
                     await parseTextToIDs(notification);
                     const message: MessageEmbed = await compileEmbedMessage(esi, corporation, token, notification);
                     discordNotifier.postChannelsMsg(channels, message);
