@@ -4,7 +4,7 @@
     "description": "Eve corp discord bot notifier",
     "main": "./dist/index.js",
     "scripts": {
-        "start": "SET NODE_ENV=development && set DEBUG=true && tsc --p tsconfig.json && nodemon ./dist/index.js",
+        "start": "set NODE_ENV=development && set DEBUG=true && tsc --p tsconfig.json && nodemon ./dist/index.js",
         "prod": "cross-env NODE_ENV=production npx tsc --p tsconfig.json && node ./dist/index.js",
         "pi-start": "concurrently \"NODE_ENV=development tsc -w --p tsconfig.json\"  \"NODE_ENV=development nodemon ./dist/index.js\"",
         "test": "jest --detectOpenHandles"
@@ -44,7 +44,7 @@
         "jest": "^27.0.6",
         "mongodb": "^3.6.10",
         "mongodb-memory-server": "^7.3.0",
-        "nodemon": "^2.0.7",
+        "nodemon": "^2.0.16",
         "ts-jest": "^27.0.3",
         "ts-node": "^10.0.0",
         "typescript": "^4.3.2"
