@@ -123,6 +123,7 @@ export class Routes {
         ctx.body += await this.initCharactersHTML();
         ctx.body += this.initAuthorisationsForm();
         //ctx.body += await this.initChannelTable();
+        ctx.body += this.manualCallbackForm();
     }
 
     async initAccountsHTML():Promise<string>{
@@ -197,6 +198,20 @@ export class Routes {
         const characterId: number = ctx.params.characterId
         await this.provider.deleteCharacter(characterId);
         ctx.redirect("/login")
+    }
+
+    manualCallbackForm():string{
+        var formHMTL:string =  " \
+            <hr><h2>Manual Callback Code Input</h2> \
+            <p style='width:300px'>If callbacks are not routed, \
+                to complete the login above, use this input box \
+                to paste the 'code' from the URL query, then \
+                press enter: \
+            </p> \
+            <form action='/callback' method='get' name='form2'> \
+            ";        
+        formHMTL+= `<input type="text" name="code" value=""></form>`
+        return formHMTL;
     }
 
     async setupDatabaseIndexes(newCharacter: { account: Account; character: Character; token: Token;}){
