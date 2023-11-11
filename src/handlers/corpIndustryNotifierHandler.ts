@@ -12,8 +12,14 @@ export async function syncCorpIndustryNotifierHandler(provider: MongoProvider, d
         const blueprintDAOModels: Array<BlueprintDAOModel> = await CorpBlueprintDAOModelQueries.getBlueprintDAOModels(provider, corporation.corporation_id);
         if (blueprintDAOModels.length < 1) return null;
 
-        const message: MessageEmbed = await compileEmbedMessage(corporation, blueprintDAOModels);
-        discordNotifier.postChannelsMsg(channels, message);
+        const messageReady: MessageEmbed = await compileEmbedMessageReady(corporation, blueprintDAOModels);
+        discordNotifier.postChannelsMsg(channels, messageReady);
+
+        const messageInProgress: MessageEmbed = await compileEmbedMessageInProgress(corporation, blueprintDAOModels);
+        discordNotifier.postChannelsMsg(channels, messageInProgress);
+
+        const messageDeliverables: MessageEmbed = await compileEmbedMessageDeliverables(corporation, blueprintDAOModels);
+        discordNotifier.postChannelsMsg(channels, messageDeliverables);
 
         //Reset increases as now notified, and save them to database
         blueprintDAOModels.forEach(value => {
@@ -32,8 +38,8 @@ export async function syncCorpIndustryNotifierHandler(provider: MongoProvider, d
     }
 }
 
-async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels: Array<BlueprintDAOModel>): Promise<MessageEmbed> {
-    var title: string = "Industry Jobs Update"
+async function compileEmbedMessageReady(corporation: Corporation, blueprintDAOModels: Array<BlueprintDAOModel>): Promise<MessageEmbed> {
+    var title: string = "Industry Jobs Ready Update"
     var description: string = `${corporation.name} weekly industry job updates:`;
     var colour: number = blue;
     var fields: Array<EmbedFieldData> = [];
@@ -48,6 +54,27 @@ async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels:
             }).join(' ')}`, inline: true
         });
     }
+
+    //Compile message
+    const embed = new MessageEmbed()
+        .setAuthor(`${corporation.name}`, getCorporationIconURL(corporation.corporation_id))
+        .setTitle(title)
+        .setColor(colour)
+        .setThumbnail(`http://eve-inspiracy.com/images/shipblueprints/bp-taranis.jpg`)
+        .setDescription(description)
+        .setFooter('See \'Industry\' → \'Jobs\' → \'Owned by Corp\' for details.')
+
+    embed.addFields(fields);
+
+    return Promise.resolve(embed);
+}
+
+
+async function compileEmbedMessageInProgress(corporation: Corporation, blueprintDAOModels: Array<BlueprintDAOModel>): Promise<MessageEmbed> {
+    var title: string = "Industry Jobs In Progress Update"
+    var description: string = `${corporation.name} weekly industry job updates:`;
+    var colour: number = blue;
+    var fields: Array<EmbedFieldData> = [];
 
     //In progress
     let inProgressBlueprints = blueprintDAOModels.filter(value => value.status != IStatus.ready && value.status != IStatus.delivered);
@@ -72,6 +99,28 @@ async function compileEmbedMessage(corporation: Corporation, blueprintDAOModels:
         });
     }
 
+    //Compile message
+    const embed = new MessageEmbed()
+        .setAuthor(`${corporation.name}`, getCorporationIconURL(corporation.corporation_id))
+        .setTitle(title)
+        .setColor(colour)
+        .setThumbnail(`http://eve-inspiracy.com/images/shipblueprints/bp-taranis.jpg`)
+        .setDescription(description)
+        .setFooter('See \'Industry\' → \'Jobs\' → \'Owned by Corp\' for details.')
+
+    embed.addFields(fields);
+
+    return Promise.resolve(embed);
+}
+
+
+async function compileEmbedMessageDeliverables(corporation: Corporation, blueprintDAOModels: Array<BlueprintDAOModel>): Promise<MessageEmbed> {
+    var title: string = "Industry Jobs Deliverables Update"
+    var description: string = `${corporation.name} weekly industry job updates:`;
+    var colour: number = blue;
+    var fields: Array<EmbedFieldData> = [];
+
+    //Deliverables
     let deliverableBlueprints = blueprintDAOModels.filter(value => value.status == IStatus.ready || value.status == IStatus.delivered);
     if(deliverableBlueprints.length > 0){
         fields.push({ name: "Deliverable BPOs", value: `${deliverableBlueprints.length} ready for delivery `, inline: true });
