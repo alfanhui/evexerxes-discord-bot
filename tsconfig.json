@@ -14,8 +14,9 @@
     },
     "include": [
         "./src/**/*",
-        "secret.js"
-, "index.ts"    ],
+        "secret.js",
+        "index.ts"
+    ],
     "exclude": [
         "node_modules",
         "dist"

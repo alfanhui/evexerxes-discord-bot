@@ -10,6 +10,7 @@ export const getCharNotifications = async (esi: ESI, token: Token, characterId: 
     )).json();
 }
 
+// For full list: https://github.com/antihax/goesi/blob/master/notification/notification.go
 export const parseTextToIDs = async (notification: CharNotification) => {
     if(notification.text) {
         let lines: string[] = notification.text.split("\n");

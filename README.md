@@ -177,3 +177,10 @@ non-docker:
 - notify significant changes to corporate containers ( putting in, taking away)
 - show / notify on corp wallet changes
 - validate contracts if originate from an accepted station..
+- use character notifications to:
+  - simpler wars updates on corp
+  - simpler structures conditions and under attack
+  - orbitals under attack (custom offices!)
+  - sovereignty?
+- use current war method for any corps we're looking out to be a war..
+- indy reactions

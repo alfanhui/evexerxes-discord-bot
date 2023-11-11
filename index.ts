@@ -39,4 +39,5 @@ app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`);
 });
 
+//Start scheduler
 const cron = new Cron(provider, esi, discordNotifer);
