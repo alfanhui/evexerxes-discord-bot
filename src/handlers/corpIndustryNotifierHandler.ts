@@ -13,13 +13,19 @@ export async function syncCorpIndustryNotifierHandler(provider: MongoProvider, d
         if (blueprintDAOModels.length < 1) return null;
 
         const messageReady: MessageEmbed = await compileEmbedMessageReady(corporation, blueprintDAOModels);
-        discordNotifier.postChannelsMsg(channels, messageReady);
+        if (messageReady != null){
+            discordNotifier.postChannelsMsg(channels, messageReady);
+        }
 
         const messageInProgress: MessageEmbed = await compileEmbedMessageInProgress(corporation, blueprintDAOModels);
-        discordNotifier.postChannelsMsg(channels, messageInProgress);
+        if ( messageInProgress != null){
+            discordNotifier.postChannelsMsg(channels, messageInProgress);
+        }
 
         const messageDeliverables: MessageEmbed = await compileEmbedMessageDeliverables(corporation, blueprintDAOModels);
-        discordNotifier.postChannelsMsg(channels, messageDeliverables);
+        if ( messageDeliverables != null){
+            discordNotifier.postChannelsMsg(channels, messageDeliverables);
+        }
 
         //Reset increases as now notified, and save them to database
         blueprintDAOModels.forEach(value => {
@@ -53,6 +59,8 @@ async function compileEmbedMessageReady(corporation: Corporation, blueprintDAOMo
                 return `${value.runs_made > 0 ? 'x' + value.runs_made : '~~0~~'}|${value.material_efficiency_increase > 0 ? '+' + value.material_efficiency_increase : '~~0~~'}|${value.time_efficiency_increase > 0 ? '+' + value.time_efficiency_increase : '~~0~~'}|${value.copies_made > 0 ? 'x' + value.copies_made : '~~0~~'}\n`
             }).join(' ')}`, inline: true
         });
+    } else {
+        return null;
     }
 
     //Compile message
@@ -97,6 +105,8 @@ async function compileEmbedMessageInProgress(corporation: Corporation, blueprint
                 }
             }).join(' ')}`, inline: true
         });
+    } else {
+        return null;
     }
 
     //Compile message
@@ -124,6 +134,8 @@ async function compileEmbedMessageDeliverables(corporation: Corporation, bluepri
     let deliverableBlueprints = blueprintDAOModels.filter(value => value.status == IStatus.ready || value.status == IStatus.delivered);
     if(deliverableBlueprints.length > 0){
         fields.push({ name: "Deliverable BPOs", value: `${deliverableBlueprints.length} ready for delivery `, inline: true });
+    }else {
+        return null;
     }
 
     //Compile message
