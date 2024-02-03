@@ -75,34 +75,34 @@ test('update an existing structure', async () => {
     expect(updatedStructure.fuel_expires).toBe('2021-07-03 00:00:01');
 });
 
-// test('delete contract does nothing if provided with nothing', async () => {
-//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
-//     await CorpStructuresQueries.deleteContract(provider, corporationId, null);
-//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corporationId);
-//     expect(updatedCorpContract.length).toBe(1);
-// });
+test('delete contract does nothing if provided with nothing', async () => {
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
+    await CorpStructuresQueries.deleteStructure(provider, corporationId, {} as CorpStructure);
+    let updatedCorpContract: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corporationId);
+    expect(updatedCorpContract.length).toBe(1);
+});
 
-// test('delete contract successfully deletes 1', async () => {
-//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
-//     await CorpStructuresQueries.deleteContract(provider, corporationId, corpStructure1);
-//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corporationId);
-//     expect(updatedCorpContract.length).toBe(0);
-// });
+test('delete structure successfully deletes 1', async () => {
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
+    await CorpStructuresQueries.deleteStructure(provider, corporationId, corpStructure1);
+    let updatedCorpContract: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corporationId);
+    expect(updatedCorpContract.length).toBe(0);
+});
 
-// test('delete multiple contracts does nothing if provided with nothing', async () => {
-//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
-//     await CorpStructuresQueries.deleteContracts(provider, corporationId, null);
-//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corporationId);
-//     expect(updatedCorpContract.length).toBe(1);
-// });
+test('delete multiple structures does nothing if provided with nothing', async () => {
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
+    await CorpStructuresQueries.deleteStructures(provider, corporationId, []);
+    let updatedCorpContract: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corporationId);
+    expect(updatedCorpContract.length).toBe(1);
+});
 
-// test('delete multiple contracts successfully deletes multiple', async () => {
-//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
-//     await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpContract_2);
-//     await CorpStructuresQueries.deleteContracts(provider, corporationId, [corpStructure1, corpContract_2]);
-//     let updatedCorpContract: Structure[] = await CorpStructuresQueries.getContracts(provider, corporationId);
-//     expect(updatedCorpContract.length).toBe(0);
-// });
+test('delete multiple structures successfully deletes multiple', async () => {
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure1);
+    await CorpStructuresQueries.saveOrUpdateStructure(provider, corporationId, corpStructure2);
+    await CorpStructuresQueries.deleteStructures(provider, corporationId, [corpStructure1, corpStructure2]);
+    let updatedCorpContract: CorpStructure[] = await CorpStructuresQueries.getStructures(provider, corporationId);
+    expect(updatedCorpContract.length).toBe(0);
+});
 
 test('getFuelNotifyStatus negative days prior on new structure gives empty warning', async () => {
     jest

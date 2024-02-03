@@ -1,4 +1,6 @@
 import { Contract } from "../../../src/api/corporation/contractsAPI";
+import { ContractDAOModel } from "../../../src/daos/corpContractDAO";
+
 
 export const corpContract1 = <Contract>JSON.parse('{ \
     "acceptor_id": null, \

@@ -61,7 +61,7 @@ export class CorpContractQueries {
         return await provider.connection.collection(corporationId.toString() + "_contracts").findOne({ "contract_id": contract.contract_id });
     }
 
-    static async getContracts(provider: MongoProvider, corporationId: number) {
+    static async getContracts(provider: MongoProvider, corporationId: number): Promise<Array<ContractDAOModel>> {
         return await provider.connection.collection(corporationId.toString() + "_contracts").find().toArray() as Array<ContractDAOModel>;
     }
 
