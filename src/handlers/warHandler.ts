@@ -52,7 +52,9 @@ export async function syncWar(provider: MongoProvider, esi: ESI, discordNotifier
                                 //NEW WAR! Notify Discord
                                 const warType: WAR_MESSAGE_TYPE = warDetail.finished ? WAR_MESSAGE_TYPE.FINISHED : WAR_MESSAGE_TYPE.NEW;
                                 const message: MessageEmbed = await compileEmbedMessage(provider, esi, corporation, token, warDetail, warType);
-                                discordNotifier.postChannelsMsg(channels, message);
+                                if(message){
+                                    discordNotifier.postChannelsMsg(channels, message);
+                                }
                             }
                             await CorpWarsQueries.saveOrUpdateWar(provider, corporation.corporation_id, warDetail)
                         }
@@ -182,6 +184,8 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
     var colour: number;
     var thumbnail;
     var fields: Array<EmbedFieldData> = [];
+    const todayMinusAMonth: Date = new Date();
+    todayMinusAMonth.setMonth(todayMinusAMonth.getMonth() - 1);
 
     //Allies
     if (warDetail.allies != null && warDetail.allies.length > 0) {
@@ -194,6 +198,10 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
 
     switch (war_type) {
         case WAR_MESSAGE_TYPE.NEW:
+            //Do not post old news
+            if(new Date(warDetail.started).getTime() < todayMinusAMonth.getTime()){
+                Promise.resolve(null);
+            }
             description = `${aggressorNameLink} have declared war to ${defenderNameLink}.`
             if (warDetail.started) {
                 fields.push({ name: "starts at:", value: `${new Date(warDetail.started).toLocaleDateString("en-US", dateOptions)}` });
@@ -209,6 +217,10 @@ async function compileEmbedMessage(provider: MongoProvider, esi: ESI, corporatio
             }
             break;
         case WAR_MESSAGE_TYPE.FINISHED:
+            //Do not post old news
+            if(new Date(warDetail.finished).getTime() < todayMinusAMonth.getTime()){
+                Promise.resolve(null);
+            }
             title = 'WAR IS OVER!'
             colour = green;
             description = `The war between ${aggressorNameLink} and ${defenderNameLink} has ended. Finished at: ${new Date(warDetail.finished).toLocaleDateString("en-US", dateOptions)}`
